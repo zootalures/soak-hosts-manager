@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd"
+	start-state="canCreate">
+	<persistence-context />
+
+
+	<action-state id="canCreate">
+		<evaluate expression="bulkHostsFlowController.canCreate" />
+		<transition on="success" to="selectType" />
+		<transition to="permissionDenied" />
+	</action-state>
+	<end-state id="permissionDenied" view="host/permissionDenied" />
+	<view-state id="selectType" view="bulk/bulkCreateStart">
+		<on-entry>
+			<evaluate expression="bulkCreateHostsChooseTypeFormController.setupForm" />
+		</on-entry>
+		<transition on="submit" to="handleChooseType">
+			<evaluate expression="bulkCreateHostsChooseTypeFormController.bind" />
+		</transition>
+	</view-state>
+	<action-state id="handleChooseType">
+		<evaluate expression="bulkCreateHostsFlowController.getType" />
+		<transition on="upload" to="cvsUploadForm" />
+		<transition on="range" to="rangeDefinintionForm" />
+	</action-state>
+	<view-state id="cvsUploadForm" view="bulk/bulkCreateCSVForm">
+		<on-entry>
+			<evaluate expression="bulkCreateHostsUploadCSVFormController.setupForm" />
+		</on-entry>
+		<on-render>
+			<evaluate expression="bulkCreateHostsFlowController.setUpHostDefaultsCommand" />
+		</on-render>
+		<transition on="submit" to="fillHostDetailsFromCSV">
+			<evaluate expression="bulkCreateHostsUploadCSVFormController.bindAndValidate" />
+		</transition>
+	</view-state>
+	<action-state id="fillHostDetailsFromCSV">
+		<evaluate expression="bulkCreateHostsFlowController.fillHostDetailsFromCSVFile" />
+		<transition to="editHostDetails" />
+	</action-state>
+	
+	<view-state id="rangeDefinintionForm" view="bulk/bulkCreateRangeForm">
+		<on-entry>
+			<evaluate expression="bulkCreateHostsFromRangeFormController.setupForm" />
+		</on-entry>
+		<on-render>
+			<evaluate expression="bulkCreateHostsFlowController.setUpHostDefaultsCommand" />
+		</on-render>
+		<transition on="submit" to="fillHostDetailsFromRange">
+			<evaluate expression="bulkCreateHostsFromRangeFormController.bindAndValidate" />
+		</transition>
+	</view-state>
+	<action-state id="fillHostDetailsFromRange">
+		<evaluate expression="bulkCreateHostsFlowController.fillHostDetailsFromRange" />
+		<transition to="editHostDetails" />
+	</action-state>
+	<subflow-state id="editHostDetails" subflow="update-hosts-flow">
+		<input name="selectedHosts" value="flowScope.selectedHosts" />
+		<input name="isCreation" value="true" />
+		<output name="result" value="flowScope.result" />
+		<output name="command" value="flowScope.command" />
+		<transition to="complete" />
+	</subflow-state>
+	<end-state id="complete" view="bulk/hostsCreated" />
+	<bean-import resource="bulk-hosts.flowbeans.xml" />
+	<bean-import resource="bulk-create-hosts.flowbeans.xml" />
+</flow>

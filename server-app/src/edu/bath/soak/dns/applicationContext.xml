@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+http://www.springframework.org/schema/aop  http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+	<!--	<tx:annotation-driven transaction-manager="transactionManager"-->
+	<!--		proxy-target-class="true" />-->
+
+	<bean id="dnsAddressManagerAdvisor"
+		class="edu.bath.soak.dns.DNSAddressManagerAdvisor">
+		<property name="dnsDAO" ref="dnsDAO" />
+	</bean>
+	<bean name="dnsService" class="edu.bath.soak.dns.DDNSServiceImpl">
+		<description>back-end DNS service</description>
+	</bean>
+	<bean name="dnsCmdValidator"
+		class="edu.bath.soak.dns.cmd.DNSCmdValidator">
+		<property name="dnsDao" ref="dnsDAO" />
+	</bean>
+	<bean name="dnsMgr;dnsUpdateMgr"
+		class="edu.bath.soak.dns.DNSMgrImpl">
+	
+		<property name="dnsCmdValidator" ref="dnsCmdValidator" />
+		<property name="dnsDAO" ref="dnsDAO" />
+		<property name="dnsService" ref="dnsService" />
+	</bean>
+
+	<bean name="bulkDeleteDNSRecordsManager"
+		class="edu.bath.soak.dns.BulkDeleteDNSRecordsManager">
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="dnsDAO" ref="dnsDAO" />
+		<property name="dnsHostsInterceptor" ref="dnsHostsInterceptor" />
+		<property name="dnsCmdValidator" ref="dnsCmdValidator" />
+	</bean>
+	<bean name="dnsXMLIDResolver"
+		class="edu.bath.soak.dns.DNSIDResolver">
+		<property name="dnsDAO" ref="dnsDAO" />
+	</bean>
+
+	<bean name="dnsHostsInterceptor;dnsHostCmdValidator"
+		class="edu.bath.soak.dns.DNSHostsInterceptor">
+		<description>
+			listens for host changes and defines and expands DNS changed
+			required
+		</description>
+
+		<property name="securityHelper" ref="securityHelper" />
+		<property name="dnsMgr" ref="dnsMgr" />
+		<property name="dnsDAO" ref="dnsDAO" />
+		<property name="hostsDAO" ref="hostsDAO" />
+	</bean>
+
+	<bean id="dnsDAO" class="edu.bath.soak.dns.model.DNSDao">
+		<description>The DNS Manager</description>
+		<property name="sessionFactory">
+			<ref bean="soakspringSessionFactory" />
+		</property>
+	</bean>
+
+
+
+
+	<bean id="dnsPlugin" class="edu.bath.soak.SoakCorePlugin">
+		<property name="pluginName" value="Host manager DNS Plugin" />
+		<property name="pluginVersion" value="0.0.1" />
+
+		<property name="pluginDescription">
+			<value>
+				Allows host changes to be linked to one or more DNS
+				servers. Supports any DNS server which allows dynamic DNS
+				(RFC2136) updates and TSIG security (RFC3007).
+			</value>
+		</property>
+		<property name="pluginConfigUrl" value="/dns/list.do" />
+		<property name="subValidators">
+			<map>
+				<entry key-ref="alterHostCmdValidator"
+					value-ref="dnsHostsInterceptor" />
+			</map>
+		</property>
+		<property name="commandExpanders">
+			<list>
+				<ref bean="dnsHostsInterceptor" />
+				<ref bean="bulkDeleteDNSRecordsManager" />
+			</list>
+		</property>
+		<property name="commandProcessors">
+			<ref bean="dnsMgr" />
+		</property>
+		<property name="addressManagerAdvisors">
+			<ref bean="dnsAddressManagerAdvisor" />
+		</property>
+		<property name="xmlIdResolvers">
+			<ref bean="dnsXMLIDResolver" />
+		</property>
+		<property name="xmlMappedPackages">
+			<list>
+				<value>edu.bath.soak.dns</value>
+			</list>
+		</property>
+
+		<property name="customPropertyEditors">
+			<map>
+				<entry key="edu.bath.soak.dns.model.DNSRecord">
+					<bean
+						class="edu.bath.soak.dns.propertyeditors.DNSRecordPropertyEditor">
+						<property name="dnsDAO" ref="dnsDAO" />
+					</bean>
+				</entry>
+				<entry key="edu.bath.soak.dns.model.DNSZone">
+					<bean
+						class="edu.bath.soak.dns.propertyeditors.DNSZonePropertyEditor">
+						<property name="dnsDAO" ref="dnsDAO" />
+					</bean>
+				</entry>
+			</map>
+		</property>
+
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="propertyEditorRegistrar"
+			ref="customEditorRegistrar" />
+		<property name="addressSpaceManager" ref="addressSpaceManager" />
+		<property name="commandDispatcherRegistry"
+			ref="commandDispatcherRegistry" />
+		<property name="xmlManager" ref="xmlManager" />
+
+	</bean>
+	<bean
+		class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
+</beans>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd"
+	start-state="checkPerms">
+	<persistence-context />
+
+	<input name="id" value="flowScope.hostId" type="java.lang.Long"
+		required="true" />
+	<action-state id="checkPerms">
+		<evaluate expression="deleteHostFormController.checkPermissions" />
+		<transition on="success" to="previewDelete" />
+		<transition to="permissionDenied" />
+	</action-state>
+	<view-state id="previewDelete" view="host/previewDelete">
+		<on-render>
+			<evaluate expression="deleteHostFormController.calculateChanges" />
+		</on-render>
+		<transition on="submit" to="applyDeleteChanges">
+			<evaluate expression="deleteHostFormController.bind" />
+		</transition>
+	</view-state>
+	<action-state id="applyDeleteChanges">
+		<evaluate expression="deleteHostFormController.applyChanges" />
+		<transition on="success" to="completeView" />
+	</action-state>
+	<end-state id="completeView" view="host/hostDeleted" />
+	<end-state id="permissionDenied" view="host/permissionDenied" />
+	<bean-import resource="update-host.flowbeans.xml" />
+</flow>

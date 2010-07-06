@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SoakData>
+	<networkClasses>
+		<description>
+			Network used for connecting user devices
+		</description>
+		<id>GENERAL</id>
+		<name>Campus Network</name>
+		<allowedHostClasses>GATEWAY</allowedHostClasses>
+		<allowedHostClasses>MISC</allowedHostClasses>
+		<allowedHostClasses>WIRELESSAP</allowedHostClasses>
+		<allowedHostClasses>SWITCH</allowedHostClasses>
+		<allowedHostClasses>L3ROUTER</allowedHostClasses>
+		<allowedHostClasses>PC</allowedHostClasses>
+		<allowedHostClasses>ADPC</allowedHostClasses>
+		<allowedHostClasses>PRINTER</allowedHostClasses>
+		<allowedHostClasses>SERVER</allowedHostClasses>
+		<allowedHostClasses>ADSERVER</allowedHostClasses>
+		<allowedHostClasses>SERVICEIP</allowedHostClasses>
+		<allowedHostClasses>SERVICEPROCESSOR</allowedHostClasses>
+		<allowedHostClasses>THINCLIENT</allowedHostClasses>
+	</networkClasses>
+	<networkClasses>
+		<description>DMZ networks</description>
+		<id>DMZ</id>
+		<name>DMZ network</name>
+		<allowedHostClasses>GATEWAY</allowedHostClasses>
+		<allowedHostClasses>MISC</allowedHostClasses>
+		<allowedHostClasses>SERVER</allowedHostClasses>
+		<allowedHostClasses>SERVICEPROCESSOR</allowedHostClasses>
+		<allowedHostClasses>ADSERVER</allowedHostClasses>
+		<allowedHostClasses>SERVICEIP</allowedHostClasses>
+	</networkClasses>
+
+</SoakData>

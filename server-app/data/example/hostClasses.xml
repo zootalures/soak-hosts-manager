@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SoakData>
+	<hostClasses>
+		<id>ADPC</id>
+		<DHCPStatus>REQUIRED</DHCPStatus>
+		<description>Active directory PC</description>
+		<name>Active directory PC</name>
+		<canHaveAliases>false</canHaveAliases>
+	</hostClasses>
+
+	<hostClasses>
+		<id>GATEWAY</id>
+
+		<DHCPStatus>NONE</DHCPStatus>
+		<description>Gateway</description>
+		<name>IP Gateway</name>
+		<canHaveAliases>true</canHaveAliases>
+
+	</hostClasses>
+
+	<hostClasses id="PRINTER">
+		<id>PRINTER</id>
+		<canHaveAliases>true</canHaveAliases>
+
+		<DHCPStatus>IF_POSSIBLE</DHCPStatus>
+		<description>Printer</description>
+		<name>Printer</name>
+	</hostClasses>
+
+	<hostClasses id="WIRELESSAP">
+		<id>WIRELESSAP</id>
+		<canHaveAliases>false</canHaveAliases>
+
+		<DHCPStatus>IF_POSSIBLE</DHCPStatus>
+		<description>Wireless Access Point</description>
+		<name>Wireless Access Point</name>
+	</hostClasses>
+
+	<hostClasses id="SWITCH">
+		<id>SWITCH</id>
+		<DHCPStatus>IF_POSSIBLE</DHCPStatus>
+		<description>Switch</description>
+		<name>Layer 2 Switch</name>
+		<canHaveAliases>false</canHaveAliases>
+	</hostClasses>
+
+	<hostClasses>
+		<id>L3ROUTER</id>
+		<DHCPStatus>IF_POSSIBLE</DHCPStatus>
+		<description>Layer 3 (ip) switch or router</description>
+		<name>Router/L3 Switch</name>
+		<canHaveAliases>true</canHaveAliases>
+
+	</hostClasses>
+
+
+	<hostClasses id="ADSERVER">
+		<id>ADSERVER</id>
+		<DHCPStatus>IF_POSSIBLE</DHCPStatus>
+		<description>Active Directory Server</description>
+		<name>Active Directory Server</name>
+		<canHaveAliases>true</canHaveAliases>
+	</hostClasses>
+
+	<hostClasses id="SERVER">
+		<id>SERVER</id>
+		<DHCPStatus>IF_POSSIBLE</DHCPStatus>
+		<description>Server</description>
+		<name>Server</name>
+		<canHaveAliases>true</canHaveAliases>
+
+	</hostClasses>
+
+
+	<hostClasses>
+		<id>PC</id>
+		<DHCPStatus>IF_POSSIBLE</DHCPStatus>
+		<description>
+			Generic Computer not on active directory, includes Macs,
+			laptops and windows machines
+		</description>
+		<name>Personal Computer</name>
+		<canHaveAliases>false</canHaveAliases>
+
+	</hostClasses>
+
+
+	<hostClasses id="SERVICEIP">
+		<id>SERVICEIP</id>
+		<DHCPStatus>IF_POSSIBLE</DHCPStatus>
+		<description>
+			Service IP Address used for multi-homed machines
+		</description>
+		<name>Service Address</name>
+		<canHaveAliases>true</canHaveAliases>
+
+	</hostClasses>
+
+	<hostClasses id="SERVICEPROCESSOR">
+		<id>SERVICEPROCESSOR</id>
+		<DHCPStatus>IF_POSSIBLE</DHCPStatus>
+		<description>Service processor</description>
+		<name>Service Processor</name>
+		<canHaveAliases>false</canHaveAliases>
+	</hostClasses>
+
+	<hostClasses id="THINCLIENT">
+		<id>THINCLIENT</id>
+		<DHCPStatus>REQUIRED</DHCPStatus>
+		<description>Thin Client</description>
+		<name>Thin Client</name>
+		<canHaveAliases>false</canHaveAliases>
+
+	</hostClasses>
+
+	<hostClasses>
+		<id>MISC</id>
+		<description>Miscellaneous host</description>
+		<name>Miscellaneous</name>
+		<canHaveAliases>false</canHaveAliases>
+
+	</hostClasses>
+
+	<hostClasses>
+		<id>PAC</id>
+		<description>Public Access PC</description>
+		<name>Public Access PC</name>
+		<canHaveAliases>false</canHaveAliases>
+	</hostClasses>
+
+</SoakData>

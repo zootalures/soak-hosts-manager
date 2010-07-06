@@ -1,0 +1,435 @@
+h4 {
+	margin: 0.2em;
+}
+
+.errorBox {
+	background-color: #FFC0CB;
+	font-weight: bold;
+	border: 1px solid #FF909B;
+}
+
+div.errorBox {
+	margin: 1em;
+	padding: 0.5em;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+div.warnBox {
+	background-color: #FFFF99;
+	font-weight: bold;
+	border: 1px solid #dddd77;
+		margin: 1em;
+	padding: 0.5em;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+div.infoBox {
+	background-color: #C0FFCB;
+	font-weight: bold;
+	border: 1px solid #90FF9B;
+	margin: 1em;
+	padding: 0.5em;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+div.searchBox {
+	background-color: #c3d9ff;
+	font-weight: bold;
+	border: 1px solid #b3c9ff;
+	margin: 1em;
+	padding: 0.5em;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+#starredSearchBox #searchBox {
+	background-color: #eeee69;
+	border: 1px solid #cece46;
+}
+
+span.errorBox {
+	display: block;
+	margin: 0.5em 0.5em 0.5em 15.5em;
+	padding: 0.2em;
+	width: 50%;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+label {
+	float: left;
+	text-align: right;
+	width: 10em;
+	padding-right: 10px;
+	font-weight: bold;
+}
+
+input.radio {
+	
+}
+
+form input.submit {
+	padding-left: 15em;
+}
+
+form div.formDescription {
+	padding-left: 11em;
+	padding-bottom: 1em;
+	padding-top: 0.3em;
+}
+
+.infopanel {
+	padding: 0em;
+	clear: both;
+}
+
+.infopanel-title {
+	background-color: #e0ecff; /* same colour as GMail info bar */
+	color: #000000;
+	font-weight: bold;
+	margin-top: 0.5em;
+	padding: 0.1em 0.2em 0.1em 0.2em;
+}
+
+.infopanel-body {
+	padding: 0.1em 0.2em 0.1em 0.2em;
+}
+
+.email_primary {
+	font-weight: bold;
+}
+
+.infopanel h3 {
+	font-size: 12pt;
+}
+
+.infopanel img.quota-piechart {
+	margin: 1em;
+	float: right;
+}
+
+div.ditch-tab-skin-default {
+	margin: 2em;
+}
+
+div.ditch-tab-pane {
+	clear: both;
+}
+
+div.ditch-tab a {
+	color: black;
+	font-weight: bold;
+}
+
+.actionlink {
+	background-image: url(../images/link_bullet.png);
+	background-repeat: no-repeat;
+	background-position: bottom left;
+	padding-top: 0.5em;
+	padding-left: 10px;
+	margin-left: 0.5em;
+	display: block;
+	width: 50%;
+}
+
+a.helpLink {
+	background-image: url(../images/gtk-help.png);
+	background-repeat: no-repeat;
+	background-position: bottom left;
+	padding-top: 0.5em;
+	padding-left: 22px;
+	margin-left: 1em;
+	display: block;
+	width: 50%;
+}
+
+table.infoTable {
+	padding: 1em;
+}
+
+.infoTable td {
+	vertical-align: top;
+	padding: 0.2em;
+}
+
+.infoTable td.value {
+	border-bottom: 1px solid #E0ECFF;
+}
+
+.infoTable td a {
+	display: inline;
+}
+
+.infoTable td.label {
+	text-align: right;
+	font-weight: bold;
+	padding-left: 3em;
+}
+
+.form-section {
+	border: 1px solid #eeeeee;
+	background-color: #ddddff;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	margin: 1em;
+	padding: 0.5em;
+}
+
+.form-section  h3 {
+	font-size: 12pt;
+	margin: 0.3em 0em 0em 0em;
+}
+
+.form-section br {
+	margin: 0.6em;
+}
+
+.buttonArea {
+	text-align: center;
+}
+
+input:disabled {
+	background-color: #eee;
+}
+
+input[disabled] {
+	background-color: #eee;
+}
+
+div.errorBanner {
+	margin: 4em;
+	padding: 1em;
+	background-color: #FFC0CB;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+#resetData span.errorBox {
+	margin-left: 2em;
+}
+
+ul.submenubar {
+	display: inline;
+	list-style-type: none;
+}
+
+ul.submenubar li {
+	background-color: #6699FF;
+	color: #000099;
+	padding: 0.5em;
+	float: left;
+}
+
+div#righttopmenu {
+	padding: 0.2em;
+	float: right;
+}
+
+div#righttopmenu a:link,div#righttopmenu a:visited {
+	font-weight: bold;
+	text-decoration: none;
+}
+
+div#righttopmenu img {
+	border: none;
+	padding: 0px;
+	margin: 0px;
+}
+
+div#righttopmenu span {
+	display: inline;
+}
+
+div#righttopmenu a {
+	display: inline;
+}
+
+div#righttopmenu form {
+	display: inline;
+}
+
+div#righttopmenu input {
+	border: 1px solid black;
+}
+
+div#menuitems {
+	float: left;
+}
+
+td {
+	vertical-align: top;
+}
+
+.listAlias {
+	font-size: smaller;
+}
+
+tr.changed td {
+	background-color: #ffdddd;
+}
+
+a.addButton span,a.editPermsButton span,a.helpButton  span,a.editButton  span,a.upButton span,a.downButton span,a.deleteButton span  
+	                                     ,a.showButton span {
+	display: none;
+}
+
+a.editPermsButton,a.addButton,a.deleteButton,a.editButton,a.downButton,a.upButton,a.showButton,a.helpButton
+	{
+	float: left;
+	background-repeat: no-repeat;
+	height: 16px;
+	width: 16px;
+	display: block;
+}
+
+a.editButton {
+	background-image: url("../images/gtk-edit.png");
+}
+
+a.editPermsButton {
+	background-image: url("../images/edit-acls.png");
+}
+
+a.addButton {
+	background-image: url("../images/gtk-add.png");
+}
+
+a.deleteButton {
+	background-image: url("../images/gtk-delete.png");
+}
+
+a.showButton {
+	background-image: url("../images/gtk-show.png");
+}
+
+a.upButton {
+	float: right;
+	background-image: url("../images/go-up.png");
+}
+
+a.downButton {
+	float: right;
+	background-image: url("../images/go-down.png");
+}
+
+a.helpButton {
+	display: inline;
+	float: none;
+	padding-right: 18px;
+	margin-left: 4px;
+	background-image: url("../images/gtk-help.png");
+}
+
+table.listTable thead th {
+	padding-top: 0.05em;
+	padding-bottom: 0.05em;
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+}
+
+table.listTable tbody td {
+	border-bottom: 1px solid #ccccee;
+	padding-top: 0.0em;
+	padding-bottom: 0.0em;
+}
+
+table.listTable tbody tr.selected td {
+	font-weight: bold;
+	background-color: #FFFF99;
+}
+
+span.starSelect {
+	display: block;
+	background-repeat: no-repeat;
+	height: 16px;
+	width: 16px;
+	cursor: hand;
+	cursor: pointer;
+	background-image: url("../images/unstarred.png");
+}
+
+img.star {
+	padding: 0px;
+	margin: 0px;
+	width: 13px;
+	height: 13px;
+}
+
+.selected span.starSelect {
+	background-image: url("../images/starred.png");
+}
+
+div.cmdListEntry {
+	background-color: #c3d9ff;
+	border: 1px solid #b3c9ff;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	margin-top: 0.3em;
+}
+
+div.cmdListEntry div {
+	padding: 0.3em;
+}
+
+div.cmdListEntry div.cmdListTitle {
+	background-color: #e3f9ff;
+	font-weight: bold;
+	margin: 0.0em;
+	-moz-border-radius: 5px 5px 0px 0px;
+}
+
+tr.errorHost td {
+	background-color: #FFC0CB;
+	padding-bottom: 0.0em;
+	margin-bottom: 0.0em;
+	border-bottom: 0px;
+}
+
+tr.errorHostErrors td {
+	font-weight: bold;
+	background-color: #FFC0CB;
+	padding-bottom: 0.2em;
+	margin-top: 0.0em;
+	padding-top: 0.0em;
+	border-top: 0px;
+	border-bottom: 0px;
+	background-color: #FFC0CB;
+	-moz-border-radius: 0px 0px 5px 5px;
+}
+
+span.changed span.changeAfter {
+	
+}
+
+span.changed span.changeBefore {
+	clear: both;
+	display: block;
+	font-size: smaller;
+	display: block;
+}
+
+tr.dns_OK td {
+	background-color: #C0FFCB;
+}
+
+tr.dns_SPURIOUS td {
+	background-color: #FFC0CB;
+}
+
+tr.dns_MINOR td {
+	background-color: #FFFF99;
+}
+
+tr.dns_MISSING td {
+	background-color: #FFC0CB;
+}
+
+td.allowed {
+	background-color: #C0FFCB;
+}
+
+td.denied {
+	background-color: #FFC0CB;
+}

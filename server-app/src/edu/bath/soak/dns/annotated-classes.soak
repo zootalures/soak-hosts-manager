@@ -1,0 +1,6 @@
+edu.bath.soak.dns.model.DNSHostSettings
+edu.bath.soak.dns.model.DNSZone
+edu.bath.soak.dns.model.ForwardZone
+edu.bath.soak.dns.model.ReverseZone
+edu.bath.soak.dns.model.DNSRecord
+edu.bath.soak.dns.model.DNSRecordChange

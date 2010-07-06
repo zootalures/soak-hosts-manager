@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd"
+	start-state="setupCommand">
+	<persistence-context />
+
+	<input name="selectedHosts" required="true" />
+	<action-state id="setupCommand">
+		<evaluate expression="bulkHostsFlowController.setUpMoveCommand" />
+		<transition on="success" to="chooseSubnet" />
+	</action-state>
+	<view-state id="chooseSubnet" view="bulk/bulkMoveChooseSubnet">
+		<on-entry>
+			<evaluate expression="bulkMoveHostsFormController.setupForm" />
+		</on-entry>
+		<on-render>
+			<evaluate expression="bulkHostsFlowController.setupFormBackingDataForMove" />
+		</on-render>
+		<transition on="submit" to="allocateAddresses">
+			<evaluate expression="bulkMoveHostsFormController.bindAndValidate">
+				<attribute name="validatorMethod" value="validateSubnet" />
+			</evaluate>
+		</transition>
+		<transition on="preview" to="allocateAddressesWithoutPreview">
+			<evaluate expression="bulkMoveHostsFormController.bindAndValidate">
+				<attribute name="validatorMethod" value="validateSubnet" />
+			</evaluate>
+		</transition>
+	</view-state>
+	<action-state id="allocateAddresses">
+		<evaluate expression="bulkHostsFlowController.allocateMoveIpAddresses" />
+		<transition on="success" to="confirmIpAddresses" />
+		<transition on="full" to="chooseSubnet" />
+	</action-state>
+	<action-state id="allocateAddressesWithoutPreview">
+		<evaluate expression="bulkHostsFlowController.allocateMoveIpAddresses" />
+		<transition on="success" to="confirmIpAddresses" />
+		<transition on="full" to="chooseSubnet" />
+	</action-state>
+	<view-state id="confirmIpAddresses" view="bulk/confirmMoveAddresses">
+		<on-render>
+			<evaluate expression="bulkMoveHostsFormController.setupForm" />
+		</on-render>
+		<transition on="back" to="chooseSubnet" />
+		<transition on="submit" to="previewMove">
+			<evaluate expression="bulkMoveHostsFormController.bindAndValidate" />
+		</transition>
+	</view-state>
+	<view-state id="previewMove" view="bulk/previewMove">
+		<on-entry>
+			<evaluate expression="bulkHostsFlowController.generatePreview" />
+		</on-entry>
+		<transition on="back" to="confirmIpAddresses" />
+		<transition on="changeSubnet" to="chooseSubnet" />
+		<transition on="submit" to="doEdit">
+			<evaluate expression="bulkCreateEditHostsFormController.bind" />
+		</transition>
+	</view-state>
+	<action-state id="doEdit">
+		<evaluate expression="bulkHostsFlowController.runCommand" />
+		<transition on="success" to="complete" />
+	</action-state>
+	<end-state id="complete" />
+	<bean-import resource="bulk-hosts.flowbeans.xml" />
+</flow>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd"
+	start-state="setupCommand">
+	<persistence-context />
+
+	<input name="selectedHosts" required="true" />
+	<input name="isCreation" required="false" />
+	<action-state id="setupCommand">
+		<evaluate expression="bulkHostsFlowController.setUpBulkEditCommand" />
+		<transition on="success" to="bulkEditHostsForm">
+			<evaluate expression="bulkCreateEditHostsFormController.clearValidationErrors" />
+		</transition>
+	</action-state>
+	<view-state id="bulkEditHostsForm" view="bulk/bulkEditHostsForm">
+		<!--
+			form for bulk-editing hosts (possibly during creation) this just
+			shows host details and errors
+		-->
+		<on-render>
+			<evaluate expression="bulkSetHostDetailsFormController.setupForm" />
+			<evaluate expression="bulkCreateEditHostsFormController.setupForm" />
+			<evaluate expression="bulkSetIPsFormController.setupForm" />
+			<evaluate expression="bulkApplyFilterFormController.setupForm" />
+			<evaluate expression="bulkHostsFlowController.setupFormBackingDataForEdit" />
+			<evaluate expression="bulkHostsFlowController.setupPaging" />
+		</on-render>
+		<transition on="validate" to="bulkEditHostsForm">
+			<!-- Validate all hosts  -->
+			<evaluate expression="bulkCreateEditHostsFormController.bind" />
+			<evaluate expression="bulkCreateEditHostsFormController.validate" />
+		</transition>
+		<transition on="applyBulkChanges" to="bulkEditHostsForm">
+			<!-- Apply bulk changes to hosts from bulk changes form -->
+			<evaluate expression="bulkSetHostDetailsFormController.bindAndValidate" />
+			<evaluate expression="bulkCreateEditHostsFormController.bind" />
+			<evaluate expression="bulkHostsFlowController.applyBulkEditChanges" />
+			<!--			<action bean="bulkCreateEditHostsFormController"-->
+			<!--				method="validate">-->
+			<!--			</action>-->
+		</transition>
+		<transition on="assignIps" to="bulkEditHostsForm">
+			<!-- Assign IP addresses on specified subnet -->
+			<evaluate expression="bulkSetIPsFormController.bindAndValidate" />
+			<evaluate expression="bulkCreateEditHostsFormController.bind" />
+			<evaluate expression="bulkHostsFlowController.assignIPAddresses" />
+		</transition>
+		<transition on="applyFilter" to="bulkEditHostsForm">
+			<evaluate expression="bulkApplyFilterFormController.bindAndValidate" />
+			<evaluate expression="bulkHostsFlowController.applyFilter" />
+		</transition>
+		<transition on="editIndividual" to="bulkEditHostDetailsForm">
+			<!--
+				Edit individual hosts - transition to edit details form with current
+				page (set in flow)
+			-->
+			<evaluate expression="bulkHostsFlowController.changePage" />
+		</transition>
+		<transition on="changePage" to="bulkEditHostsForm">
+			<!-- Change current page-->
+			<evaluate expression="bulkHostsFlowController.changePage" />
+		</transition>
+		<transition on="reset" to="setupCommand">
+			<!-- Reset hosts to input data currently only works for editing hosts-->
+		</transition>
+		<transition on="submit" to="previewBulkEditHosts">
+			<evaluate expression="bulkCreateEditHostsFormController.bindAndValidate" />
+		</transition>
+	</view-state>
+	<view-state id="bulkEditHostDetailsForm" view="bulk/bulkEditHostDetailsForm">
+		<on-render>
+			<evaluate expression="bulkSetHostDetailsFormController.setupForm" />
+			<evaluate expression="bulkCreateEditHostsFormController.setupForm" />
+			<evaluate expression="bulkSetIPsFormController.setupForm" />
+			<evaluate expression="bulkHostsFlowController.setupFormBackingDataForEdit" />
+			<evaluate expression="bulkHostsFlowController.setupPaging" />
+		</on-render>
+		<transition on="applyIndividual" to="bulkEditHostsForm">
+			<evaluate
+				expression="bulkCreateEditHostsFormController.bindWithoutOverwritingErrors" />
+		</transition>
+		<transition on="validate" to="bulkEditHostDetailsForm">
+			<evaluate expression="bulkCreateEditHostsFormController.bind" />
+			<evaluate expression="bulkCreateEditHostsFormController.validate" />
+		</transition>
+		<transition on="changePage" to="bulkEditHostDetailsForm">
+			<evaluate
+				expression="bulkCreateEditHostsFormController.bindWithoutOverwritingErrors" />
+			<evaluate expression="bulkHostsFlowController.changePage" />
+		</transition>
+	</view-state>
+	<view-state id="previewBulkEditHosts" view="bulk/previewBulkEditHosts">
+		<on-entry>
+			<evaluate expression="bulkCreateEditHostsFormController.setupForm" />
+		</on-entry>
+		<on-render>
+			<evaluate expression="bulkHostsFlowController.generatePreview" />
+		</on-render>
+		<transition on="back" to="bulkEditHostsForm" />
+		<transition on="submit" to="doEdit">
+			<evaluate expression="bulkCreateEditHostsFormController.bind" />
+		</transition>
+	</view-state>
+	<action-state id="doEdit">
+		<evaluate expression="bulkHostsFlowController.runCommand" />
+		<transition on="success" to="complete" />
+	</action-state>
+	<end-state id="complete">
+		<output name="command" value="flowScope.command" />
+		<output name="result" value="flowScope.result" />
+	</end-state>
+	<bean-import resource="bulk-hosts.flowbeans.xml" />
+</flow>

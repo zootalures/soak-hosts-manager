@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+
+
+	<bean id="testData" class="edu.bath.soak.testutils.LiveTestData">
+		<property name="dnsDAO" ref="dnsDAO" />
+		<property name="netDAO" ref="hostsDAO" />
+		<property name="dnsMgrImpl" ref="dnsMgr" />
+		<property name="dhcpDAO" ref="dhcpDAO" />
+		<property name="bulkManager" ref="bulkManager" />
+		<property name="dhcpImportFile"
+			value="/home/cspocc/workspace/soakspring/bathdata/dhcpData.txt" />
+		<property name="importFiles">
+			<list>
+
+				<value>
+					/home/cspocc/workspace/soakspring/bathdata/organisationalUnits.xml
+				</value>
+				<value>
+					/home/cspocc/workspace/soakspring/bathdata/vlans.xml
+				</value>
+				<value>
+					/home/cspocc/workspace/soakspring/bathdata/hostClasses.xml
+				</value>
+				<value>
+					/home/cspocc/workspace/soakspring/bathdata/networkClasses.xml
+				</value>
+				<value>
+					/home/cspocc/workspace/soakspring/bathdata/subnets.xml
+				</value>
+				<value>
+					/home/cspocc/workspace/soakspring/bathdata/nameDomains.xml
+				</value>
+				<value>
+					/home/cspocc/workspace/soakspring/bathdata/hosts.xml
+				</value>
+			</list>
+		</property>
+		<!---->
+		<property name="dnsZones">
+			<description>
+				Default DNS zones for live testing
+			</description>
+			<list>
+				<bean class="edu.bath.soak.dns.model.ForwardZone">
+					<property name="domain" value="bath.ac.uk." />
+					<property name="defaultTTL" value="432000" />
+					<property name="displayName"
+						value="Bath internal forward zone" />
+					<property name="description"
+						value="Zone containing all internal .bath.ac.uk. records excluding .campus.bath.ac.uk" />
+					<property name="serverIP" value="127.0.0.1" />
+					<property name="sigKey"
+						value="tbd_dns_int_key" />
+					<property name="ignoreHostRegexps">
+						<value>.*\.campus\.bath\.ac\.uk\.$</value>
+					</property>
+				</bean>
+				<bean class="edu.bath.soak.dns.model.ForwardZone">
+					<property name="domain" value="campus.bath.ac.uk." />
+					<property name="defaultTTL" value="432000" />
+					<property name="displayName"
+						value="Bath campus internal forward zone" />
+					<property name="description"
+						value="Zone containing all internal campus.bath.ac.uk. records excluding .campus.bath.ac.uk" />
+					<property name="serverIP" value="127.0.0.1" />
+					<property name="sigKey"
+						value="tbd_dns_int_key" />
+				</bean>
+				<bean class="edu.bath.soak.dns.model.ForwardZone">
+					<property name="domain" value="bath.ac.uk." />
+					<property name="defaultTTL" value="432000" />
+					<property name="displayName"
+						value="Bath external forward zone" />
+					<property name="description"
+						value="Zone containing all internal .bath.ac.uk. records excluding .campus.bath.ac.uk" />
+					<property name="serverIP" value="127.0.0.1" />
+					<property name="sigKey"
+						value="tbd_dns_ext_key" />
+					<property name="ignoreTargetRegexps">
+						<value><![CDATA[^192\.168\..*$
+^172\.16\..*$
+^172\.17\..*$
+^172\.18\..*$
+^172\.19\..*$
+^172\.2.\..*$
+^172\.30\..*$
+^172\.31\..*$
+^10\..*$]]></value>
+					</property>
+
+				</bean>
+
+				<bean class="edu.bath.soak.dns.model.ReverseZone">
+					<property name="domain"
+						value="38.138.in-addr.arpa." />
+					<property name="defaultTTL" value="432000" />
+					<property name="displayName"
+						value="Bath external reverse zone" />
+					<property name="description"
+						value="Zone containing all external 138.38.0.0 reverse records" />
+					<property name="serverIP" value="127.0.0.1" />
+					<property name="sigKey"
+						value="tbd_dns_ext_key"
+/>
+
+				</bean>
+				<bean class="edu.bath.soak.dns.model.ReverseZone">
+					<property name="domain"
+						value="38.138.in-addr.arpa." />
+					<property name="defaultTTL" value="432000" />
+					<property name="displayName"
+						value="Bath internal  reverse zone" />
+					<property name="description"
+						value="Zone containing all internal 138.38.0.0 reverse records" />
+					<property name="serverIP" value="127.0.0.1" />
+					<property name="sigKey"
+						value="tbd_dns_ext_key" />
+
+				</bean>
+				<bean class="edu.bath.soak.dns.model.ReverseZone">
+					<property name="domain"
+						value="168.192.in-addr.arpa." />
+					<property name="defaultTTL" value="432000" />
+					<property name="displayName"
+						value="Bath gigabit network reverse zone" />
+					<property name="description"
+						value="Zone containing all external 192.168 reverse records" />
+					<property name="serverIP" value="127.0.0.1" />
+					<property name="sigKey"
+						value="tbd_dns_int_key" />
+				</bean>
+
+				<bean class="edu.bath.soak.dns.model.ReverseZone">
+					<property name="domain"
+						value="19.172.in-addr.arpa." />
+					<property name="defaultTTL" value="3600" />
+					<property name="displayName"
+						value="Bath dialup  network reverse zone" />
+					<property name="description"
+						value="Zone containing all external 172.19 reverse records" />
+					<property name="serverIP" value="127.0.0.1" />
+					<property name="sigKey"
+						value="tbd_dns_int_key" />
+				</bean>
+				<bean class="edu.bath.soak.dns.model.ReverseZone">
+					<property name="domain"
+						value="20.172.in-addr.arpa." />
+					<property name="defaultTTL" value="3600" />
+					<property name="displayName"
+						value="Bath PAPC  network reverse zone" />
+					<property name="description"
+						value="Zone containing all external 172.20 reverse records" />
+					<property name="serverIP" value="127.0.0.1" />
+					<property name="sigKey"
+						value="tbd_dns_int_key" />
+				</bean>
+				<bean class="edu.bath.soak.dns.model.ReverseZone">
+					<property name="domain"
+						value="21.172.in-addr.arpa." />
+					<property name="defaultTTL" value="3600" />
+					<property name="displayName"
+						value="Bath Resnet  network reverse zone" />
+					<property name="description"
+						value="Zone containing all external 172.21 reverse records" />
+					<property name="serverIP" value="127.0.0.1" />
+					<property name="sigKey"
+						value="tbd_dns_int_key" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+
+</beans>

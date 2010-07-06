@@ -1,0 +1,14 @@
+<SoakData>
+   <organisationalUnits>
+      <id>xx</id>
+      <name>Administration</name>
+   </organisationalUnits>
+   <organisationalUnits>
+      <id>yy</id>
+      <name>Server Admins</name>
+   </organisationalUnits>
+   <organisationalUnits>
+      <id>zz</id>
+      <name>Host Admins</name>
+   </organisationalUnits>
+</SoakData>

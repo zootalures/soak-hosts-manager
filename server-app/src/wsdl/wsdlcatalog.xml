@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<catalog prefer="system">
+<system systemId="http://ccpc-occ3.campus.bath.ac.uk/dhcpws/DHCPWsvc.asmx?WSDL" uri="DHCPWSvc.wsdl"/>
+−
+	<!--
+system systemId="http://helloservice.org/types/HelloTypes.xsd"
+          uri="HelloTypes.xsd"/
+-->
+</catalog>

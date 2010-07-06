@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://www.bath.edu/soak/ws/dhcp/0.3" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" targetNamespace="http://www.bath.edu/soak/ws/dhcp/0.3" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Windows DHCP Service Interface</wsdl:documentation>
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://www.bath.edu/soak/ws/dhcp/0.3">
+      <s:element name="GetSubnetInfo">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="server" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="baseIpAddress" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSubnetInfoResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetSubnetInfoResult" type="tns:DHCPWSSubnetInfo" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DHCPWSSubnetInfo">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="FetchedOn" type="s:dateTime" />
+          <s:element minOccurs="0" maxOccurs="1" name="SubnetBase" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="SubnetComment" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="SubnetMask" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="SubnetName" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="SubnetState" type="tns:DHCPSubnetState" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="DHCPSubnetState">
+        <s:restriction base="s:string">
+          <s:enumeration value="DhcpSubnetEnabled" />
+          <s:enumeration value="DhcpSubnetDisabled" />
+          <s:enumeration value="DhcpSubnetEnabledSwitched" />
+          <s:enumeration value="DhcpSubnetDisabledSwitched" />
+          <s:enumeration value="DhcpSubnetInvalidState" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="GetSubnetClients">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="server" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="subnetAddressTxt" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSubnetClientsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetSubnetClientsResult" type="tns:ArrayOfDHCPWSClientInfo" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfDHCPWSClientInfo">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="DHCPWSClientInfo" nillable="true" type="tns:DHCPWSClientInfo" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="DHCPWSClientInfo">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Comment" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="FetchedOn" type="s:dateTime" />
+          <s:element minOccurs="0" maxOccurs="1" name="HostName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="IPAddress" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="LeaseTime" type="s:dateTime" />
+          <s:element minOccurs="0" maxOccurs="1" name="MacAddress" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="NetMask" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetSubnets">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="server" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSubnetsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetSubnetsResult" type="tns:ArrayOfDHCPWSSubnetInfo" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfDHCPWSSubnetInfo">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="DHCPWSSubnetInfo" nillable="true" type="tns:DHCPWSSubnetInfo" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetClientInfo">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="server" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="iPAddressTxt" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetClientInfoResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetClientInfoResult" type="tns:DHCPWSClientInfo" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateReservation">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="server" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="scopeAddress" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="ipAddress" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="macAddress" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="hostName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="comment" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateReservationResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="DeleteReservation">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="server" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="scopeAddress" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="ipAddress" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="macAddress" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteReservationResponse">
+        <s:complexType />
+      </s:element>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="GetSubnetInfoSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSubnetInfo" />
+  </wsdl:message>
+  <wsdl:message name="GetSubnetInfoSoapOut">
+    <wsdl:part name="parameters" element="tns:GetSubnetInfoResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSubnetClientsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSubnetClients" />
+  </wsdl:message>
+  <wsdl:message name="GetSubnetClientsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetSubnetClientsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSubnetsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSubnets" />
+  </wsdl:message>
+  <wsdl:message name="GetSubnetsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetSubnetsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetClientInfoSoapIn">
+    <wsdl:part name="parameters" element="tns:GetClientInfo" />
+  </wsdl:message>
+  <wsdl:message name="GetClientInfoSoapOut">
+    <wsdl:part name="parameters" element="tns:GetClientInfoResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateReservationSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateReservation" />
+  </wsdl:message>
+  <wsdl:message name="CreateReservationSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateReservationResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteReservationSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteReservation" />
+  </wsdl:message>
+  <wsdl:message name="DeleteReservationSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteReservationResponse" />
+  </wsdl:message>
+  <wsdl:portType name="DHCPWSvcSoap">
+    <wsdl:operation name="GetSubnetInfo">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Gets SubnetInfo for a specific server </wsdl:documentation>
+      <wsdl:input message="tns:GetSubnetInfoSoapIn" />
+      <wsdl:output message="tns:GetSubnetInfoSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSubnetClients">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Retrieves information for all clients on a given scope</wsdl:documentation>
+      <wsdl:input message="tns:GetSubnetClientsSoapIn" />
+      <wsdl:output message="tns:GetSubnetClientsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSubnets">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Gets all DHCP SubnetInfo </wsdl:documentation>
+      <wsdl:input message="tns:GetSubnetsSoapIn" />
+      <wsdl:output message="tns:GetSubnetsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetClientInfo">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Retrieves information for a particular client</wsdl:documentation>
+      <wsdl:input message="tns:GetClientInfoSoapIn" />
+      <wsdl:output message="tns:GetClientInfoSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateReservation">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Creates a DHCP Reservation</wsdl:documentation>
+      <wsdl:input message="tns:CreateReservationSoapIn" />
+      <wsdl:output message="tns:CreateReservationSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteReservation">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Deletes a DHCP Reservation</wsdl:documentation>
+      <wsdl:input message="tns:DeleteReservationSoapIn" />
+      <wsdl:output message="tns:DeleteReservationSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="DHCPWSvcSoap" type="tns:DHCPWSvcSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetSubnetInfo">
+      <soap:operation soapAction="http://www.bath.edu/soak/ws/dhcp/0.3/GetSubnetInfo" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubnetClients">
+      <soap:operation soapAction="http://www.bath.edu/soak/ws/dhcp/0.3/GetSubnetClients" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubnets">
+      <soap:operation soapAction="http://www.bath.edu/soak/ws/dhcp/0.3/GetSubnets" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetClientInfo">
+      <soap:operation soapAction="http://www.bath.edu/soak/ws/dhcp/0.3/GetClientInfo" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateReservation">
+      <soap:operation soapAction="http://www.bath.edu/soak/ws/dhcp/0.3/CreateReservation" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteReservation">
+      <soap:operation soapAction="http://www.bath.edu/soak/ws/dhcp/0.3/DeleteReservation" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="DHCPWSvcSoap12" type="tns:DHCPWSvcSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetSubnetInfo">
+      <soap12:operation soapAction="http://www.bath.edu/soak/ws/dhcp/0.3/GetSubnetInfo" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubnetClients">
+      <soap12:operation soapAction="http://www.bath.edu/soak/ws/dhcp/0.3/GetSubnetClients" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubnets">
+      <soap12:operation soapAction="http://www.bath.edu/soak/ws/dhcp/0.3/GetSubnets" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetClientInfo">
+      <soap12:operation soapAction="http://www.bath.edu/soak/ws/dhcp/0.3/GetClientInfo" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateReservation">
+      <soap12:operation soapAction="http://www.bath.edu/soak/ws/dhcp/0.3/CreateReservation" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteReservation">
+      <soap12:operation soapAction="http://www.bath.edu/soak/ws/dhcp/0.3/DeleteReservation" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="DHCPWSvc">
+    <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Windows DHCP Service Interface</wsdl:documentation>
+    <wsdl:port name="DHCPWSvcSoap" binding="tns:DHCPWSvcSoap">
+      <soap:address location="http://ccpc-muffin.campus.bath.ac.uk/dhcpws/DHCPWsvc.asmx" />
+    </wsdl:port>
+    <wsdl:port name="DHCPWSvcSoap12" binding="tns:DHCPWSvcSoap12">
+      <soap12:address location="http://ccpc-muffin.campus.bath.ac.uk/dhcpws/DHCPWsvc.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

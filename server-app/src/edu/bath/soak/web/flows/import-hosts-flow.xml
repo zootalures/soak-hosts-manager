@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd"
+      start-state="enterHostsFile">
+
+<!--  start state, select a host type --><view-state id="enterHostsFile" view="bulk/enterHostsFile"/>
+   <view-state id="listFoundHosts" view="host/chooseHostType"/>
+   <bean-import resource="import-hosts.flowbeans.xml"/>
+</flow>

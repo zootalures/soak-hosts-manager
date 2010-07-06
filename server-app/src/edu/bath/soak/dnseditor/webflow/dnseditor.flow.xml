@@ -1,0 +1,43 @@
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow
+			    http://www.springframework.org/schema/webflow/spring-webflow-1.0.xsd">
+
+	<start-state idref="editorState" />
+
+
+	<view-state id="editorState" view="dnseditor/search">
+		<render-actions>
+			<action bean="dnsEditorFlowController" method="setupForm" />
+			<action bean="dnsEditorFlowController"
+				method="formBackingData" />
+			<action bean="searchDNSFormController" method="setupForm" />
+			<action bean="deleteRecordsFormController"
+				method="setupForm" />
+		</render-actions>
+
+		<transition on="search" to="editorState">
+			<action bean="searchDNSFormController"
+				method="bindAndValidate" />
+			<action bean="searchDNSFormController" method="doSearch" />
+		</transition>
+
+		<transition on="addRecords" to="addRecords"></transition>
+		<transition on="addRange" to="addRange"></transition>
+		<transition on="editRecord" to="editRecord">
+	
+		</transition>
+
+		<transition on="deleteSelected" to="editorState">
+			<action bean="deleteRecordsFormController"
+				method="bindAndValidate" />
+			<action bean="deleteRecordsFormController"
+				method="doDeleteRecords" />
+		</transition>
+	</view-state>
+
+	<view-state id="addRecords" view="dneditor/addrecords"></view-state>
+	<view-state id="addRange" view="dneditor/addRange"></view-state>
+	<view-state id="editRecord" view="dneditor/editRecord"></view-state>
+	<import resource="dnseditor.flowbeans.xml" />
+</flow>

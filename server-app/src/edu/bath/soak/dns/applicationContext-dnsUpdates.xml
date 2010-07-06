@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+	
+	
+	<bean id="dnsPeriodicPartialUpdateDetails"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="dnsUpdateMgr" />
+		<property name="targetMethod" value="updateAllDNSZones" />
+		<property name="arguments">
+			<list>
+				<value type="java.lang.Boolean">false</value>
+			</list>
+		</property>
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<bean id="dnsPeriodicFullUpdateDetails"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="dnsUpdateMgr" />
+		<property name="targetMethod" value="updateAllDNSZones" />
+		<property name="arguments">
+			<list>
+				<value type="java.lang.Boolean">true</value>
+			</list>
+		</property>
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<bean id="dnsPeriodicPartialUpdateTrigger"
+		class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+		<description>
+			Scheduler bean for the periodic (partial) DNS update
+		</description>
+		<property name="jobDetail"
+			ref="dnsPeriodicPartialUpdateDetails" />
+
+		<property name="startDelay" value="100000" />
+		<property name="repeatInterval" value="600000" />
+	</bean>
+
+<!--	<bean id="dnsPeriodicFullUpdateTrigger"-->
+<!--		class="org.springframework.scheduling.quartz.SimpleTriggerBean">-->
+<!--		<description>-->
+<!--			Scheduler bean for the periodic (full) DNS update-->
+<!--		</description>-->
+<!--		<property name="jobDetail" ref="dnsPeriodicFullUpdateDetails" />-->
+<!---->
+<!--		<property name="startDelay" value="10000" />-->
+<!--		<property name="repeatInterval" value="3600000" />-->
+<!--	</bean>-->
+	<bean id="dnsPeriodicFullUpdateTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<description>
+			Scheduler bean for the periodic (full) DNS update
+		</description>
+		<property name="jobDetail" ref="dnsPeriodicFullUpdateDetails" />
+
+		<property name="cronExpression" value="0 25 1 ? * * " />
+<!--		<property name="startDelay" value="10000" />-->
+<!--		<property name="repeatInterval" value="3600000" />-->
+	</bean>
+	<bean
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="dnsPeriodicPartialUpdateTrigger" />
+				<ref bean="dnsPeriodicFullUpdateTrigger" />
+			</list>
+		</property>
+		
+	</bean>
+	<bean
+		class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
+</beans>

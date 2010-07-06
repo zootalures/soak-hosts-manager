@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+	<bean id="dhcpPeriodicUpdateClientScopes"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="dhcpMgr" />
+		<property name="targetMethod" value="updateAllDhcpServers" />
+		<property name="arguments">
+			<list>
+				<value type="java.lang.Long">3600000</value>
+			</list>
+		</property>
+		<property name="concurrent" value="false" />
+	</bean>
+
+	<bean id="dhcpPeriodicPartialUpdateTrigger"
+		class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+		<description>
+			Scheduler bean for the periodic (partial) DNS update
+		</description>
+		<property name="jobDetail" ref="dhcpPeriodicUpdateClientScopes" />
+
+		<property name="startDelay" value="10000" />
+		<property name="repeatInterval" value="60000" />
+	</bean>
+
+	<bean
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="dhcpPeriodicPartialUpdateTrigger" />
+			</list>
+		</property>
+		
+	</bean>
+
+	<bean
+		class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
+</beans>

@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+	<!--
+		- A simple "base bones" Acegi Security configuration. - - The sample
+		includes the "popular" features that people tend to use. -
+		Specifically, form authentication, remember-me, and anonymous
+		processing. - Other features aren't setup, as these can be added later
+		by inserting - the relevant XML fragments as specified in the
+		Reference Guide. - - To assist new users, the filters specified in the
+		FilterChainProxy are - declared in the application context in the same
+		order. Collaborators - required by those filters are placed at the end
+		of the file. - - $Id: applicationContext-acegi-security.xml 1987
+		2007-08-29 12:12:45Z luke_t $
+	-->
+
+<beans>
+
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<description>Property configurer</description>
+		<property name="location">
+			<value>classpath:soak.properties</value>
+		</property>
+	</bean>
+	<bean id="serviceProperties" class="org.springframework.security.ui.cas.ServiceProperties">
+		<property name="service"
+			value="${soak.web.appbase}j_acegi_cas_security_check" />
+		<property name="sendRenew" value="false" />
+	</bean>
+
+	<bean id="casProcessingFilter" class="org.springframework.security.ui.cas.CasProcessingFilter">
+		<property name="authenticationManager">
+			<ref bean="authenticationManager" />
+		</property>
+		<property name="authenticationFailureUrl">
+			<value>/casFailed.jsp</value>
+		</property>
+		<property name="defaultTargetUrl">
+			<value>/host/search.do</value>
+		</property>
+		<property name="filterProcessesUrl">
+			<value>/j_acegi_cas_security_check</value>
+		</property>
+	</bean>
+
+	<bean id="filterChainProxy" class="org.springframework.security.util.FilterChainProxy">
+		<description>
+			This is our filter chain which is mapped from the web.xml
+			filter, it allows anonymous and CAS-based access.
+		</description>
+		<property name="filterInvocationDefinitionSource">
+			<value><![CDATA[
+				CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+				PATTERN_TYPE_APACHE_ANT
+				/media/**=anonymousProcessingFilter
+				/images/**=anonymousProcessingFilter
+				/scripts/**=anonymousProcessingFilter
+				/yui/**=anonymousProcessingFilter
+				/host/hostsfile.do**=anonymousProcessingFilter
+				/rest/**=basicAuthProcessingFilter,filterInvocationInterceptor
+				/casfailed.jsp**=anonymousProcessingFilter
+				/**=httpSessionContextIntegrationFilter,logoutFilter,casProcessingFilter,securityContextHolderAwareRequestFilter,exceptionTranslationFilter,filterInvocationInterceptor
+			]]></value>
+		</property>
+	</bean>
+
+	<bean id="httpSessionContextIntegrationFilter"
+		class="org.springframework.security.context.HttpSessionContextIntegrationFilter" />
+
+	<bean id="logoutFilter" class="org.springframework.security.ui.logout.LogoutFilter">
+		<description>
+			This filter handles the /j_acegi_logout url which kills
+			the
+			login session and sends the user off to CAS to get logged
+			out
+		</description>
+		<constructor-arg value="${cas.logout.url}" />
+		<constructor-arg>
+			<list>
+				<bean
+					class="org.springframework.security.ui.logout.SecurityContextLogoutHandler" />
+			</list>
+		</constructor-arg>
+		<property name="filterProcessesUrl">
+			<value>/j_acegi_logout</value>
+		</property>
+	</bean>
+
+
+	<bean id="securityContextHolderAwareRequestFilter"
+		class="org.springframework.security.wrapper.SecurityContextHolderAwareRequestFilter">
+		<description>
+			This is a request wrapper which inserts the appropriate
+			info
+			into request.getRemoteUser etc and propagates the users
+			roles
+		</description>
+	</bean>
+
+	<bean id="basicAuthEntryPoint"
+		class="org.springframework.security.ui.basicauth.BasicProcessingFilterEntryPoint">
+		<property name="realmName" value="SOAK" />
+	</bean>
+	<bean id="basicAuthProcessingFilter"
+		class="org.springframework.security.ui.basicauth.BasicProcessingFilter">
+		<property name="authenticationEntryPoint" ref="basicAuthEntryPoint" />
+		<property name="authenticationManager" ref="internalAuthenticationManager" />
+
+	</bean>
+
+	<bean id="anonymousProcessingFilter"
+		class="org.springframework.security.providers.anonymous.AnonymousProcessingFilter">
+		<property name="key" value="changeThis" />
+		<property name="userAttribute" value="anonymousUser,ROLE_ANONYMOUS" />
+	</bean>
+
+	<bean id="exceptionTranslationFilter"
+		class="org.springframework.security.ui.ExceptionTranslationFilter">
+		<property name="authenticationEntryPoint">
+			<ref local="casProcessingFilterEntryPoint" />
+		</property>
+	</bean>
+
+	<bean id="casProcessingFilterEntryPoint"
+		class="org.springframework.security.ui.cas.CasProcessingFilterEntryPoint">
+		<property name="loginUrl" value="${cas.login.url}" />
+		<property name="serviceProperties">
+			<ref bean="serviceProperties" />
+		</property>
+	</bean>
+
+	<bean id="filterInvocationInterceptor"
+		class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
+		<property name="authenticationManager" ref="authenticationManager" />
+		<property name="accessDecisionManager">
+			<bean class="org.springframework.security.vote.AffirmativeBased">
+				<property name="allowIfAllAbstainDecisions" value="false" />
+				<property name="decisionVoters">
+					<list>
+						<bean class="org.springframework.security.vote.RoleVoter" />
+						<bean class="org.springframework.security.vote.AuthenticatedVoter" />
+					</list>
+				</property>
+			</bean>
+		</property>
+		<property name="objectDefinitionSource">
+			<value><![CDATA[
+				CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+				PATTERN_TYPE_APACHE_ANT
+				/rest/**=ROLE_RESTUSER
+				/yui/**=ROLE_ANONYMOUS
+				/scripts/**=ROLE_ANONYMOUS
+				/media/**=ROLE_ANONYMOUS
+				/images/**=ROLE_ANONYMOUS
+				/admin/**=ROLE_SUPERVISOR
+				/**=ROLE_SOAK_USER
+			]]></value>
+		</property>
+	</bean>
+
+
+	<bean id="ldapInitialDirContextFactory"
+		class="org.springframework.security.ldap.DefaultInitialDirContextFactory">
+		<constructor-arg>
+			<value>${soak.ldap.connectionURL}</value>
+		</constructor-arg>
+		<property name="managerDn" value="${soak.ldap.managerDn}" />
+		<property name="managerPassword" value="${soak.ldap.managerPassword}" />
+	</bean>
+
+	<!--
+		UserDetailsService is the most commonly frequently Acegi Security
+		interface implemented by end users
+	-->
+	<bean id="userDetailsService" class="edu.bath.soak.security.LDAPUserDetailsService">
+		<description>
+			The primary userdetails service used for authenticating
+			day
+			to day users.
+		</description>
+		<property name="initialDirContextFactory" ref="ldapInitialDirContextFactory" />
+
+		<property name="userSearchBase" value="${soak.ldap.userSearchBase}" />
+
+		<property name="authorityGranters">
+			<list>
+				<bean class="edu.bath.soak.security.LDAPGroupOUAuthorityGranter">
+					<property name="groupSearchBase" value="${soak.ldap.groupSearchBase}" />
+
+					<property name="hostsDAO" ref="hostsDAO" />
+					<property name="adminGroups" value="${soak.ldap.adminGroups}" />
+					<property name="accessGroups">
+						<list>
+							<value>${soak.ldap.accessGroup1}</value>
+							<value>${soak.ldap.accessGroup2}</value>
+						</list>
+					</property>
+					<property name="adminUsers" value="${soak.ldap.adminUsers}" />
+					<property name="initialDirContextFactory" ref="ldapInitialDirContextFactory" />
+
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="internalAuthenticationManager" class="org.springframework.security.providers.ProviderManager">
+		<property name="providers">
+			<list>
+				<bean
+					class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
+
+					<property name="userDetailsService">
+						<bean
+							class="org.springframework.security.userdetails.memory.InMemoryDaoImpl">
+							<property name="userMap">
+								<value>
+									${soak.rest.username}=${soak.rest.password},ROLE_RESTUSER
+									${soak.superuser.username}=${soak.superuser.password},ROLE_SUPERVISOR
+								</value>
+							</property>
+						</bean>
+					</property>
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="authenticationManager" class="org.springframework.security.providers.ProviderManager">
+		<property name="providers">
+			<list>
+				<ref bean="casAuthenticationProvider" />
+			</list>
+		</property>
+	</bean>
+
+
+	<bean id="casAuthenticationProvider"
+		class="org.springframework.security.providers.cas.CasAuthenticationProvider">
+
+		<description>
+			The following beans all relate to the CAS Authenticatin
+			components
+		</description>
+		<property name="userDetailsService" ref="userDetailsService" />
+		<!--		<property name="casAuthoritiesPopulator">-->
+		<!--			<ref bean="casAuthoritiesPopulator" />-->
+		<!--		</property>-->
+		<!--		<property name="casProxyDecider">-->
+		<!--			<ref bean="casProxyDecider" />-->
+		<!--		</property>-->
+
+		<property name="ticketValidator">
+			<bean class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
+				<constructor-arg index="0" value="${cas.validate.url}" />
+			</bean>
+		</property>
+		<property name="serviceProperties" ref="serviceProperties" />
+
+		<property name="statelessTicketCache">
+			<ref bean="statelessTicketCache" />
+		</property>
+		<property name="key">
+			<value>ths_munkeys_gorne_too_heav0n</value>
+		</property>
+	</bean>
+
+	<!--	<bean id="casProxyTicketValidator"-->
+	<!--
+		class="org.springframework.security.providers.cas.ticketvalidator.CasProxyTicketValidator">
+	-->
+	<!--		<property name="casValidate" value="${cas.validate.url}" />-->
+<!---->
+	<!--				<property name="proxyCallbackUrl"-->
+	<!-- 					value="${soak.web.appbase}/casProxy/receptor" /> -->
+	<!--		<property name="serviceProperties">-->
+	<!--			<ref bean="serviceProperties" />-->
+	<!--		</property>-->
+	<!--	</bean>-->
+
+	<bean id="cacheManager"
+		class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+		<property name="configLocation">
+			<value>classpath:/ehcache-failsafe.xml</value>
+		</property>
+	</bean>
+
+	<bean id="ticketCacheBackend" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+		<property name="cacheManager">
+			<ref local="cacheManager" />
+		</property>
+		<property name="cacheName">
+			<value>ticketCache</value>
+		</property>
+	</bean>
+
+	<bean id="statelessTicketCache"
+		class="org.springframework.security.providers.cas.cache.EhCacheBasedTicketCache">
+		<property name="cache">
+			<ref local="ticketCacheBackend" />
+		</property>
+	</bean>
+
+	<!--	<bean id="casAuthoritiesPopulator"-->
+	<!--
+		class="org.springframework.security.providers.cas.populator.DaoCasAuthoritiesPopulator">
+	-->
+	<!--		<property name="userDetailsService">-->
+	<!--			<ref bean="userDetailsService" />-->
+	<!--		</property>-->
+	<!--	</bean>-->
+
+	<!--	<bean id="casProxyDecider"-->
+	<!--		class="org.springframework.security.providers.cas." />-->
+
+
+	<!--
+		This bean is optional; it isn't used by any other bean as it only
+		listens and logs
+	-->
+	<bean id="loggerListener"
+		class="org.springframework.security.event.authentication.LoggerListener" />
+
+</beans>

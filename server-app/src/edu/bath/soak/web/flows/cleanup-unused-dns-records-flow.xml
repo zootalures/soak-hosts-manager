@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd"
+	start-state="checkPermissions">
+	<persistence-context />
+
+	<decision-state id="checkPermissions">
+		<on-entry>
+			<evaluate expression="securityHelper.isAdmin" result="flowScope.isAdmin" />
+		</on-entry>
+		<if test="flowScope.isAdmin" then="selectZones" else="noPermission" />
+	</decision-state>
+	<end-state id="noPermission" view="errors/permissionDenied" />
+	<view-state id="selectZones" view="dns/selectZones">
+		<on-entry>
+			<evaluate expression="selectDnsZonesFormController.setupForm" />
+		</on-entry>
+		<on-render>
+			<evaluate expression="cleanUpUnusedDNSRecordsController.setUpReferenceData" />
+		</on-render>
+		<transition on="submit" to="computeRecords">
+			<evaluate expression="selectDnsZonesFormController.bindAndValidate">
+				<attribute name="validatorMethod" value="validateZones" />
+			</evaluate>
+		</transition>
+	</view-state>
+	<action-state id="computeRecords">
+		<evaluate
+			expression="cleanUpUnusedDNSRecordsController.calculateRecordsToCleanUp" />
+		<transition on="success" to="selectRecords" />
+	</action-state>
+	<view-state id="selectRecords" view="dns/selectRecords">
+		<transition on="submit" to="previewDeleteRecords">
+			<evaluate expression="selectDnsZonesFormController.bindAndValidate">
+				<attribute name="validatorMethod" value="validateRecords" />
+			</evaluate>
+		</transition>
+	</view-state>
+	<view-state id="previewDeleteRecords" view="dns/previewDeleteRecords">
+		<on-entry>
+			<evaluate expression="bulkHostsFlowController.generatePreview" />
+		</on-entry>
+		<transition on="back" to="computeRecords" />
+		<transition on="submit" to="deleteRecords" />
+	</view-state>
+	<action-state id="deleteRecords">
+		<evaluate expression="bulkHostsFlowController.runCommand" />
+		<transition on="success" to="recordsDeleted" />
+	</action-state>
+	<end-state id="recordsDeleted" view="dns/recordsDeleted" />
+	<bean-import resource="cleanup-dns.flowbeans.xml" />
+	<bean-import resource="bulk-hosts.flowbeans.xml" />
+</flow>

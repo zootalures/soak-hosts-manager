@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd"
+      start-state="setupCommand">
+   <persistence-context/>
+      <input name="selectedHosts" required="true"/>
+
+   <action-state id="setupCommand">
+      <evaluate expression="bulkHostsFlowController.setUpBulkEditCommand"/>
+      <transition on="success" to="editHostDetails"/>
+   </action-state>
+   <view-state id="editHostDetails" view="bulk/bulkEditHostData">
+      <on-render>
+         <evaluate expression="bulkCreateHostsFlowController.setUpCreateHostsCommand"/>
+         <evaluate expression="bulkCreateEditHostsFormController.setupForm"/>
+      </on-render>
+      <transition on="submit" to="previewEdit">
+         <evaluate expression="bulkCreateEditHostsFormController.bindAndValidate">
+            <attribute name="validatorMethod" value="validateSubnetPresentIfNeeded"/>
+         </evaluate>
+         <evaluate expression="bulkHostsFlowController.assignIPAddresses"/>
+         <evaluate expression="bulkCreateEditHostsFormController.validate"/>
+      </transition>
+      <transition on="pickIps" to="editHostDetails">
+         <evaluate expression="bulkCreateEditHostsFormController.bind"/>
+         <evaluate expression="bulkCreateEditHostsFormController.validate">
+            <attribute name="validatorMethod" value="validateSubnetPresentIfNeeded"/>
+         </evaluate>
+         <evaluate expression="bulkHostsFlowController.assignIPAddresses"/>
+      </transition>
+   </view-state>
+   <view-state id="previewEdit" view="bulk/previewEdit">
+      <on-entry>
+         <evaluate expression="bulkHostsFlowController.generatePreview"/>
+         <evaluate expression="bulkCreateEditHostsFormController.setupForm"/>
+      </on-entry>
+      <transition on="back" to="doEdit"/>
+      <transition on="submit" to="doEdit">
+         <evaluate expression="bulkCreateEditHostsFormController.bind"/>
+      </transition>
+   </view-state>
+   <action-state id="doEdit">
+      <evaluate expression="bulkHostsFlowController.runCommand"/>
+      <transition on="success" to="complete"/>
+   </action-state>
+   <end-state id="complete"/>
+   <bean-import resource="bulk-hosts.flowbeans.xml"/>
+   <bean-import resource="bulk-create-hosts.flowbeans.xml"/>
+</flow>

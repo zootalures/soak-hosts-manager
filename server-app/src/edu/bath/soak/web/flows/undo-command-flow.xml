@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd"
+	start-state="setupCommand">
+	<persistence-context />
+
+	<input name="commandId" value="flowScope.commandId" required="true" />
+	<action-state id="setupCommand">
+		<evaluate expression="undoCommandController.setupUndoCommand" />
+		<transition to="generatePreview" />
+	</action-state>
+	<action-state id="generatePreview">
+		<evaluate expression="bulkHostsFlowController.generatePreview" />
+		<transition on="success" to="previewUndo" />
+		<transition on-exception="edu.bath.soak.undo.UndoNotSupportedException"
+			to="cantUndo" />
+	</action-state>
+	<view-state id="previewUndo" view="undo/previewUndo">
+		<transition on="submit" to="doUndo" />
+	</view-state>
+	<action-state id="doUndo">
+		<evaluate expression="bulkHostsFlowController.runCommand" />
+		<transition to="complete" />
+	</action-state>
+	<end-state id="cantUndo" view="undo/cantUndo" />
+	<end-state id="complete" view="undo/undoComplete" />
+	<bean-import resource="undo-command.flowbeans.xml" />
+</flow>

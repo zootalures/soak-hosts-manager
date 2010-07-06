@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<taglib version="2.0">
+	<tlib-version>0.0.3</tlib-version>
+	<jsp-version>1.2</jsp-version>
+	<short-name>Spring</short-name>
+	<uri>http://soak.bath.ac.uk/tags</uri>
+	<description>Soak taglib</description>
+
+	<tag>
+		<name>renderBean</name>
+		<tag-class>edu.bath.soak.web.tags.RenderBeanView</tag-class>
+		<body-content>empty</body-content>
+		<description>
+			Renders a bean using one of the available renderers
+		</description>
+		<attribute>
+			<name>bean</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>render a change command</description>
+		</attribute>
+		<attribute>
+			<name>view</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>The view to prefer for this bean</description>
+		</attribute>
+		<attribute>
+			<name>objectBase</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+				The relative base for form fields in this object
+			</description>
+		</attribute>
+	</tag>
+
+
+	<tag>
+		<name>trimSuffix</name>
+		<tag-class>edu.bath.soak.web.tags.TrimNameSuffix</tag-class>
+		<body-content>empty</body-content>
+		<description>
+			trims a suffix from a string if it is found, otherwise
+			leaves string as it is
+		</description>
+		<attribute>
+			<name>suffix</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>suffix to trim</description>
+		</attribute>
+		<attribute>
+			<name>value</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>value to trim</description>
+		</attribute>
+	</tag>
+
+	<tag>
+		<name>displayChange</name>
+		<tag-class>edu.bath.soak.web.tags.DisplayChange</tag-class>
+		<body-content>empty</body-content>
+		<description>Renders two values</description>
+		<attribute>
+			<name>before</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>value before change</description>
+		</attribute>
+		<attribute>
+			<name>after</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>value after change</description>
+		</attribute>
+	</tag>
+	<tag>
+		<name>helpLink</name>
+		<tag-class>edu.bath.soak.web.tags.HelpLink</tag-class>
+		<body-content>empty</body-content>
+		<description>
+			renders a link to a given help section
+		</description>
+		<attribute>
+			<name>path</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>the help section to link to</description>
+		</attribute>
+		<attribute>
+			<name>title</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>The title of the link</description>
+		</attribute>
+		<attribute>
+			<name>cssClass</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+				The CSS class to use for the link tag for this link
+			</description>
+		</attribute>
+	</tag>
+	<tag>
+		<name>trimText</name>
+		<tag-class>edu.bath.soak.web.tags.TrimText</tag-class>
+		<body-content>jsp</body-content>
+		<description>
+			trims any text beyond a certain length
+		</description>
+		<attribute>
+			<name>maxLength</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>maximum length of string</description>
+		</attribute>
+
+		<attribute>
+			<name>trailer</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+				trailer to append to string when trimmed
+			</description>
+		</attribute>
+		<attribute>
+			<name>stripNewLines</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>should new lines be stripped?</description>
+		</attribute>
+		<attribute>
+			<name>value</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>value to trim</description>
+		</attribute>
+	</tag>
+	<function>
+		<name>contains</name>
+		<function-class>
+			edu.bath.soak.web.tags.Functions
+		</function-class>
+		<function-signature>
+			boolean contains(java.util.Set,java.lang.Object)
+		</function-signature>
+	</function>
+
+
+	<function>
+		<name>canEdit</name>
+		<function-class>
+			edu.bath.soak.web.tags.Functions
+		</function-class>
+		<function-signature>
+			boolean canEdit(edu.bath.soak.model.OwnershipInfo)
+		</function-signature>
+	</function>
+	<function>
+		<name>canAddToSubnet</name>
+		<function-class>
+			edu.bath.soak.web.tags.Functions
+		</function-class>
+		<function-signature>
+			boolean canAddToSubnet(edu.bath.soak.net.model.Subnet)
+		</function-signature>
+	</function>
+	<function>
+		<name>canUseEntity</name>
+		<function-class>
+			edu.bath.soak.web.tags.Functions
+		</function-class>
+		<function-signature>
+			boolean canUseEntity(edu.bath.soak.model.OrgUnitAclEntity)
+		</function-signature>
+	</function>
+	<function>
+		<name>orgUnitCanUseEntity</name>
+		<function-class>
+			edu.bath.soak.web.tags.Functions
+		</function-class>
+		<function-signature><![CDATA[
+			boolean orgUnitCanUseEntity(edu.bath.soak.model.OrgUnit,edu.bath.soak.model.OrgUnitAclEntity)
+		]]></function-signature>
+	</function>
+	<function>
+		<name>relativeTime</name>
+		<function-class>
+			edu.bath.soak.web.tags.Functions
+		</function-class>
+		<function-signature><![CDATA[
+			String relativeTime(java.util.Date)
+		]]></function-signature>
+	</function>
+	<function>
+		<name>relativeTime2</name>
+		<function-class>
+			edu.bath.soak.web.tags.Functions
+		</function-class>
+		<function-signature><![CDATA[
+			String relativeTime(java.util.Date,java.util.Date)
+		]]></function-signature>
+	</function>
+
+</taglib>

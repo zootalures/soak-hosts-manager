@@ -1,0 +1,27 @@
+<SoakData>
+	<subnets>
+		<minIP>172.16.0.0</minIP>
+		<maxIP>172.16.255.255</maxIP>
+		<noScan>false</noScan>
+		<networkClass>GENERAL</networkClass>
+		<vlan>2</vlan>
+		<gateway>172.16.255.254</gateway>
+		<name>Example host network</name>
+		<description>
+		A network which can hold the usual hosts
+		</description>
+	</subnets>
+	
+	<subnets>
+		<minIP>10.0.0.0</minIP>
+		<maxIP>10.0.0.255</maxIP>
+		<noScan>false</noScan>
+		<networkClass>DMZ</networkClass>
+		<vlan>3</vlan>
+		<gateway>10.0.0.254</gateway>
+		<name>Example DMZ network</name>
+		<description>
+		A network which can hold servers
+		</description>
+	</subnets>
+</SoakData>

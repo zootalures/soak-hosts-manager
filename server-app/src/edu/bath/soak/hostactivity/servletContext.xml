@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:flow="http://www.springframework.org/schema/webflow-config"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                       http://www.springframework.org/schema/aop 
+                       http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+                       http://www.springframework.org/schema/tx 
+                       http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+                       http://www.springframework.org/schema/webflow-config
+                       http://www.springframework.org/schema/webflow-config/spring-webflow-config-1.0.xsd">
+	<description>Host activity Web plugin</description>
+
+
+	<bean id="hostActivityViewInterceptor"
+		class="edu.bath.soak.hostactivity.web.HostActivityViewInfoInterceptor">
+		<property name="hostActivityDAO" ref="hostActivityDAO" />
+	</bean>
+
+
+	<bean id="hostActivityBeanViewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<description>The host activity view resolver.</description>
+		<property name="viewNames">
+			<list>
+				<value>beanview/hostactivity/*</value>
+			</list>
+		</property>
+		<property name="prefix" value="/WEB-INF/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<bean id="hostActivityWebPlugin"
+		class="edu.bath.soak.SoakWebPlugin">
+		<property name="pluginName" value="Host Activity Web plugin" />
+		<property name="pluginVersion" value="0.0.1" />
+		<!--		<property name="pluginConfigUrl" value="/dhcp/listServers.do" />-->
+		<property name="pluginDescription">
+			<value>
+				Web plugin for the Host activity plugin, adds host
+				activity info to the host view
+			</value>
+		</property>
+
+		<property name="showHostInterceptors">
+			<list>
+				<ref bean="hostActivityViewInterceptor" />
+			</list>
+		</property>
+		<property name="hostInfoController" ref="hostInfoController" />
+	</bean>
+
+
+	<bean
+		class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
+
+</beans>

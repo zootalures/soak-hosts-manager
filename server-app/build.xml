@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="usage" name="soak">
+	<property file="build.properties" />
+	<property name="target.server" value="dev" />
+
+	<property file="server.${target.server}.properties" />
+	<property name="src.dir" value="src" />
+	<property name="rules.dir" value="rules" />
+	<property name="testsrc.dir" value="test" />
+	<property name="testbuild.dir" value="dist/test" />
+	<property name="apidocs.dir" value="doc/api" />
+	<!--	<property name="deps.dir" value="deps" /> -->
+	<property name="builddeps.dir" value="${deps.dir}/../builddeps" />
+	<property name="webbuild.dir" value="dist/webapp-${target.server}" />
+	<property name="webcontent.dir" value="web" />
+	<property name="build.dir" value="dist/build-${target.server}" />
+	<property name="name" value="soak" />
+
+	<property name="war.file" value="dist/${name}-${target.server}-${version}.war" />
+
+	<path id="master-classpath">
+		<fileset dir="${deps.dir}">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="${deps.dir}">
+			<include name="*/*.jar" />
+		</fileset>
+
+		<fileset dir="${builddeps.dir}">
+			<include name="*.jar" />
+		</fileset>
+		<pathelement path="${build.dir}" />
+	</path>
+
+
+
+	<target name="usage">
+		<echo message="" />
+		<echo message="${name} build file" />
+		<echo message="-----------------------------------" />
+		<echo message="" />
+		<echo message="Available targets are:" />
+		<echo message="" />
+		<echo message="build     --> Build the application" />
+		<echo message="doc      --> Build the javadocs " />
+		<echo message="deploy    --> Deploy application as directory" />
+		<echo message="deploywar --> Deploy application as a WAR file" />
+		<echo message="install   --> Install application in Tomcat" />
+		<echo message="reload    --> Reload application in Tomcat" />
+		<echo message="start     --> Start Tomcat application" />
+		<echo message="stop      --> Stop Tomcat application" />
+		<echo message="list      --> List Tomcat applications" />
+		<echo message="" />
+	</target>
+
+	<target name="init" depends="build_dhcp_files" />
+
+	<target name="build" description="Compile main source tree java files">
+		<mkdir dir="${build.dir}" />
+		<javac destdir="${build.dir}" target="1.5" debug="true" deprecation="false" optimize="false" failonerror="true">
+			<src path="${src.dir}" />
+			<classpath refid="master-classpath" />
+		</javac>
+		<copy todir="${build.dir}">
+			<fileset dir="${src.dir}">
+				<include name="**/*.properties" />
+				<include name="**/*.xml" />
+				<include name="**/*.sql" />
+				<include name="**/*.soak" />
+				<include name="**/*.wsdl" />
+			</fileset>
+		</copy>
+
+	</target>
+
+
+	<target name="checklogindetails" unless="tomcat.manager.username.set">
+		<input message="username:" addproperty="tomcat.manager.username" />
+
+		<input message="password:" addproperty="tomcat.manager.password" />
+
+
+	</target>
+
+	<target name="war" depends="buildwebapp,pre-compile" description="build war">
+		<war destfile="${war.file}" webxml="${webbuild.dir}/WEB-INF/web.xml">
+			<fileset dir="${webbuild.dir}">
+				<include name="**/*" />
+				<exclude name="**/WEB-INF/web.xml" />
+			</fileset>
+		</war>
+	</target>
+
+	<target name="copywebfiles" description="copies web content to build dir">
+		<mkdir dir="${webbuild.dir}" />
+		<copy todir="${webbuild.dir}/" preservelastmodified="true">
+			<fileset dir="${webcontent.dir}">
+				<include name="**/**" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="buildwebapp" description="build web app" depends="build,copywebfiles,pre-compile">
+
+		<copy todir="${webbuild.dir}/WEB-INF/lib/" preservelastmodified="true" flatten="true">
+			<fileset dir="${deps.dir}">
+				<include name="**/*" />
+
+			</fileset>
+		</copy>
+		<copy todir="${webbuild.dir}/WEB-INF/classes/" preservelastmodified="true">
+			<fileset dir="${build.dir}">
+				<include name="edu/**/*" />
+				<include name="**/*.xml" />
+				<include name="**/*.drl" />
+				<include name="**/*.sql" />
+				<include name="**/*.wsdl" />
+				<include name="*.properties" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="clean" description="Clean">
+		<delete dir="${build.dir}" />
+		<delete dir="${webbuild.dir}" />
+		<delete dir="${testbuild.dir}" />
+
+	</target>
+	<target name="distclean" depends="clean" description="Clean">
+		<delete dir="${dist.dir}" />
+	</target>
+
+	<target name="doc">
+		<mkdir dir="${apidocs.dir}" />
+		<javadoc packagenames="edu.bath.soak.*" sourcepath="${src.dir}" destdir="${apidocs.dir}" author="true" version="true" use="true" windowtitle="Soak Hosts Manager" classpathref="master-classpath">
+			<doctitle>
+				<![CDATA[<h1>Soak hosts manager API docs</h1>]]></doctitle>
+		<bottom>
+			<![CDATA[<i>Copyright &#169; 2005-2007 University of Bath, 2007-2010 Owen Cliffe . All Rights Reserved.</i>]]></bottom>
+	<tag name="todo" scope="all" description="To do:" />
+
+</javadoc>
+</target>
+<target name="doctowebdir" depends="doc">
+<mkdir dir="${webbuild.dir}/apidocs/" />
+<copy todir="${webbuild.dir}/apidocs/" preservelastmodified="true">
+	<fileset dir="${apidocs.dir}">
+		<include name="**/**" />
+	</fileset>
+</copy>
+</target>
+<!-- ============================================================== -->
+<!-- Tomcat tasks - remove these if you don't have Tomcat installed -->
+<!-- ============================================================== -->
+
+<taskdef name="install" classname="org.apache.catalina.ant.InstallTask">
+<classpath refid="master-classpath" />
+</taskdef>
+
+<taskdef name="deploy" classname="org.apache.catalina.ant.DeployTask">
+<classpath refid="master-classpath" />
+</taskdef>
+
+<taskdef name="undeploy" classname="org.apache.catalina.ant.UndeployTask">
+<classpath refid="master-classpath" />
+</taskdef>
+
+<taskdef name="reload" classname="org.apache.catalina.ant.ReloadTask">
+<classpath refid="master-classpath" />
+</taskdef>
+<taskdef name="list" classname="org.apache.catalina.ant.ListTask">
+<classpath refid="master-classpath" />
+</taskdef>
+<taskdef name="start" classname="org.apache.catalina.ant.StartTask">
+<classpath refid="master-classpath" />
+</taskdef>
+<taskdef name="stop" classname="org.apache.catalina.ant.StopTask">
+<classpath refid="master-classpath" />
+</taskdef>
+
+<target name="deploy" description="Install application in Tomcat" depends="checklogindetails,doctowebdir,war">
+<deploy url="${tomcat.manager.url}" username="${tomcat.manager.username}" password="${tomcat.manager.password}" path="/${contextpath}" war="file:${war.file}" />
+</target>
+<target name="undeploy" description="Install application in Tomcat" depends="checklogindetails">
+<undeploy url="${tomcat.manager.url}" username="${tomcat.manager.username}" password="${tomcat.manager.password}" path="/${contextpath}" />
+</target>
+
+<target name="install" description="Install application in Tomcat" depends="war,checklogindetails">
+<install url="${tomcat.manager.url}" username="${tomcat.manager.username}" password="${tomcat.manager.password}" path="/${contextpath}" war="file:${war.file}" />
+</target>
+
+<target name="reload" description="Reload application in Tomcat" depends="checklogindetails">
+<reload url="${tomcat.manager.url}" username="${tomcat.manager.username}" password="${tomcat.manager.password}" path="/${contextpath}" />
+</target>
+
+<target name="start" depends="buildwebapp,checklogindetails" description="Start Tomcat application">
+<start url="${tomcat.manager.url}" username="${tomcat.manager.username}" password="${tomcat.manager.password}" path="/${contextpath}" />
+</target>
+
+<target name="stop" description="Stop Tomcat application" depends="checklogindetails">
+<stop url="${tomcat.manager.url}" username="${tomcat.manager.username}" password="${tomcat.manager.password}" path="/${contextpath}" />
+</target>
+
+<target name="list" description="List Tomcat applications" depends="checklogindetails">
+<list url="${tomcat.manager.url}" username="${tomcat.manager.username}" password="${tomcat.manager.password}" />
+</target>
+
+<target name="test" depends="test-junit" />
+
+<target name="buildtests" depends="build">
+<mkdir dir="${testbuild.dir}" />
+<javac destdir="${testbuild.dir}" target="1.5" debug="true" deprecation="false" optimize="false" failonerror="true">
+	<src path="${testsrc.dir}" />
+	<classpath refid="master-classpath" />
+</javac>
+<copy todir="${testbuild.dir}">
+	<fileset dir="${testsrc.dir}">
+		<include name="**/*.properties" />
+		<include name="**/*.xml" />
+		<include name="**/*.wsdl" />
+	</fileset>
+</copy>
+</target>
+
+<target name="test-junit" depends="build,buildtests" description="Runs junit tests">
+<mkdir dir="${junit.out.dir.xml}" />
+<junit fork="yes" printsummary="yes">
+	<classpath path="${testbuild.dir}" />
+	<classpath refid="master-classpath" />
+
+	<formatter type="xml" />
+	<test todir="${junit.out.dir.xml}" name="${junit.test.suite}" />
+</junit>
+</target>
+
+
+<target name="filter-webxml">
+<copy file="web.unfiltered.xml" tofile="${webbuild.dir}/WEB-INF/web.xml" filtering="true" overwrite="true">
+	<filterset>
+		<filter token="target.server" value="${target.server}" />
+		<filter token="service.name" value="${service.name}" />
+		<filter token="cas.servername" value="${cas.servername}" />
+		<filter token="cas.login.url" value="${cas.login.url}" />
+		<filter token="cas.ticketValidate.url" value="${cas.ticketValidate.url}" />
+		<filter token="cas.proxy.url" value="${cas.proxy.url}" />
+	</filterset>
+</copy>
+</target>
+
+
+<target name="filter-log4j">
+<copy file="log4j.unfilitered.properties" tofile="${webbuild.dir}/WEB-INF/log4j.properties" filtering="true" overwrite="true">
+	<filterset>
+		<filter token="log.dir" value="${log.dir}" />
+		<filter token="log.rootlogger" value="${log.rootlogger}" />
+	</filterset>
+</copy>
+<copy file="log4j.unfilitered.properties" tofile="${build.dir}/log4j.properties" filtering="true" overwrite="true">
+	<filterset>
+		<filter token="log.dir" value="${log.dir}" />
+		<filter token="log.rootlogger" value="${log.rootlogger}" />
+	</filterset>
+</copy>
+</target>
+
+
+<target name="pre-compile">
+<antcall target="filter-webxml" />
+<antcall target="filter-log4j" />
+<antcall target="build-config" />
+
+</target>
+
+<target name="build-config">
+<concat destfile="${build.dir}/soak.properties">
+	<filelist>
+		<file name="soak.baseconfig.properties" />
+		<file name="server.${target.server}.properties" />
+	</filelist>
+</concat>
+</target>
+
+
+<target name="build_dhcp_files">
+<delete>
+	<fileset dir="${src.dir}/edu/bath/soak/ws/dhcp">
+	</fileset>
+</delete>
+<mkdir dir="${build.dir}" />
+<java classname="com.sun.tools.ws.WsImport" classpathref="master-classpath" fork="true">
+
+	<arg value="-p" />
+	<arg value="edu.bath.soak.ws.dhcp" />
+	<arg value="-d" />
+	<arg value="${build.dir}" />
+	<arg value="-s" />
+	<arg value="${src.dir}" />
+	<arg value="-extension" />
+	<arg value="-keep" />
+	<arg value="${src.dir}/wsdl/DHCPWsvc.wsdl" />
+</java>
+</target>
+
+
+
+</project>

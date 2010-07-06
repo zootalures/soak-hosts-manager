@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+http://www.springframework.org/schema/aop  http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+	<!--	<tx:annotation-driven transaction-manager="transactionManager"-->
+	<!--		proxy-target-class="true" />-->
+
+	<bean id="dhcpAddressManagerAdvisor"
+		class="edu.bath.soak.dhcp.DHCPAddressManagerAdvisor">
+		<property name="dhcpDao" ref="dhcpDAO" />
+	</bean>
+
+
+	<bean id="fillMacAddressWithDHCPReservationData"
+		class="edu.bath.soak.dhcp.FillMacAddressFromExistingReservation">
+		<property name="dhcpDAO" ref="dhcpDAO" />
+	</bean>
+	<bean name="dhcpHostsInterceptor;dhcpHostCmdValidator"
+		class="edu.bath.soak.dhcp.HostsDHCPInterceptor">
+		<description>
+			listens for host changes and defines and expands DNS changed
+			required
+		</description>
+		<property name="dhcpDAO" ref="dhcpDAO" />
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="securityHelper" ref="securityHelper" />
+
+	</bean>
+
+	<bean name="dhcpCmdValidator"
+		class="edu.bath.soak.dhcp.cmd.DHCPCmdValidator">
+		<property name="dhcpDAO" ref="dhcpDAO" />
+
+	</bean>
+	<bean name="dbDhcpEndpoint"
+		class="edu.bath.soak.dhcp.DBBackedDHCPServiceEndpoint">
+		<description>Simple Database backed DHCP server</description>
+		<property name="dhcpDAO" ref="dhcpDAO" />
+
+	</bean>
+
+	<bean name="dhcpXMLIDResolver"
+		class="edu.bath.soak.dhcp.DHCPIDResolver">
+		<property name="dhcpDAO" ref="dhcpDAO" />
+	</bean>
+	<bean name="dhcpMgr" class="edu.bath.soak.dhcp.DHCPManagerImpl">
+		<description>
+			DHCP manager, implements DHCP commands
+		</description>
+		<property name="endPoints">
+			<list>
+				<ref bean="wsDhcpEndpoint" />
+				<ref bean="dbDhcpEndpoint" />
+			</list>
+		</property>
+		<property name="dhcpDao" ref="dhcpDAO" />
+		<property name="dhcpCmdValidator" ref="dhcpCmdValidator" />
+	</bean>
+
+	<bean name="dhcpPlugin" class="edu.bath.soak.SoakCorePlugin">
+		<description>
+			DHCP plugin registration tools Wires all necessary
+			interceptors etc.
+		</description>
+
+		<property name="pluginDescription">
+			<value>
+				Allows host changes to be linked to one or more DHCP
+				servers. Supports DHCP server modification either via a
+				custom Web (SOAP) service, or simply saves DHCP chagnes
+				to a database.
+			</value>
+		</property>
+		<property name="pluginConfigUrl" value="/dhcp/listServers.do" />
+		<property name="pluginName" value="Host manager DHCP Plugin" />
+		<property name="pluginVersion" value="0.0.1" />
+		<property name="subValidators">
+			<map>
+				<entry key-ref="alterHostCmdValidator"
+					value-ref="dhcpHostsInterceptor" />
+			</map>
+		</property>
+		<property name="xmlIdResolvers">
+			<ref bean="dhcpXMLIDResolver" />
+		</property>
+		<property name="xmlMappedPackages">
+			<list>
+				<value>edu.bath.soak.dhcp</value>
+			</list>
+		</property>
+		<property name="hostDataSources">
+			<list>
+				<ref bean="fillMacAddressWithDHCPReservationData" />
+			</list>
+		</property>
+
+		<property name="addressManagerAdvisors">
+			<list>
+				<ref bean="dhcpAddressManagerAdvisor" />
+			</list>
+		</property>
+		<property name="commandExpanders">
+			<list>
+				<ref bean="dhcpHostsInterceptor" />
+			</list>
+		</property>
+		<property name="commandProcessors">
+			<list>
+				<ref bean="dhcpMgr" />
+			</list>
+		</property>
+		<property name="hostsDAO" ref="hostsDAO" />
+
+		<property name="dataSourceRegistry" ref="dataSourceRegistry" />
+		<property name="propertyEditorRegistrar"
+			ref="customEditorRegistrar" />
+		<property name="addressSpaceManager" ref="addressSpaceManager" />
+		<property name="commandDispatcherRegistry"
+			ref="commandDispatcherRegistry" />
+		<property name="xmlManager" ref="xmlManager" />
+
+	</bean>
+
+	<bean id="dhcpDAO" class="edu.bath.soak.dhcp.model.DHCPDao">
+		<description>The DHCP DAO</description>
+		<property name="sessionFactory">
+			<ref bean="soakspringSessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="wsDhcpEndpoint"
+		class="edu.bath.soak.dhcp.WSStaticDHCPServiceEndpoint">
+		<property name="dhcpDAO" ref="dhcpDAO" />
+	</bean>
+
+
+	<bean
+		class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
+</beans>

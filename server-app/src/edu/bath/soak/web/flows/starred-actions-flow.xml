@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd"
+	start-state="getStarredHosts">
+	<persistence-context />
+	<input name="action" value="flowScope.action" />
+	<action-state id="getStarredHosts">
+		<!--
+			extracts the set of starred hosts from the starred hosts controller
+		-->
+		<evaluate expression="bulkHostsFlowController.getStarredHosts" />
+		<transition on="noStarredHosts" to="noHostsSelected" />
+		<transition on="success" to="checkPerms" />
+	</action-state>
+	<action-state id="checkPerms">
+		<evaluate expression="bulkHostsFlowController.checkPermissions" />
+		<transition on="success" to="startSubFlow" />
+		<transition on="noPermissions" to="noPermittedHosts" />
+		<transition on="mixedPermissions" to="mixedPermission" />
+	</action-state>
+	<end-state id="noHostsSelected" view="bulk/noHostsSelected" />
+	<end-state id="noPermittedHosts" view="bulk/noHostsPermitted" />
+	<view-state id="mixedPermission" view="bulk/mixedPermissions">
+		<on-render>
+			<evaluate
+				expression="securityHelper.filterAllowedOwnedEntitiesForUser(flowScope.selectedHosts)"
+				result="requestScope.permittedHosts" />
+		</on-render>
+		<transition on="proceed" to="startSubFlow">
+			<evaluate expression="bulkHostsFlowController.filterHostsWithPermissions" />
+		</transition>
+	</view-state>
+	<decision-state id="startSubFlow">
+		<if test="flowScope.action eq 'delete'" then="startDeleteFlow" />
+		<if test="flowScope.action eq 'edit'" then="startEditFlow" />
+		<if test="flowScope.action eq 'move'" then="startMoveFlow" />
+	</decision-state>
+	<subflow-state id="startDeleteFlow" subflow="delete-hosts-flow">
+		<input name="selectedHosts" value="flowScope.selectedHosts" />
+		<transition to="deletionComplete" />
+	</subflow-state>
+	<end-state id="deletionComplete"
+		view="externalRedirect:contextRelative:/host/search.do?flash=bulk-completed-delete" />
+	<subflow-state id="startEditFlow" subflow="update-hosts-flow">
+		<input name="selectedHosts" value="flowScope.selectedHosts" />
+		<transition to="editComplete" />
+	</subflow-state>
+	<end-state id="editComplete"
+		view="externalRedirect:contextRelative:/host/showStarred.do?flash=bulk-completed-edit" />
+	<subflow-state id="startMoveFlow" subflow="move-hosts-flow">
+		<input name="selectedHosts" value="flowScope.selectedHosts" />
+		<transition to="moveComplete" />
+	</subflow-state>
+	<end-state id="moveComplete"
+		view="externalRedirect:contextRelative:/host/showStarred.do?flash=bulk-completed-move" />
+	<bean-import resource="bulk-hosts.flowbeans.xml" />
+</flow>

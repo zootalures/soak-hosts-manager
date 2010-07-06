@@ -1,0 +1,68 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                       http://www.springframework.org/schema/aop 
+                       http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+                       http://www.springframework.org/schema/tx 
+                       http://www.springframework.org/schema/tx/spring-tx-2.0.xsd">
+
+
+
+	<bean id="bulkCreateHostsFlowController" class="edu.bath.soak.web.bulk.BulkCreateHostsFlowController">
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="securityHelper" ref="securityHelper" />
+		<property name="hostsCSVParser" ref="hostsCSVParser" />
+		<property name="bulkCreateHostsManager" ref="bulkCreateEditHostsManager" />
+		<property name="propertyEditorRegistrar" ref="customEditorRegistrar" />
+		<property name="dataSourceRegistry" ref="dataSourceRegistry" />
+		<property name="hostNameEditor" ref="hostNameEditor" />
+	
+	</bean>
+
+	<bean id="bulkCreateHostsFromRangeFormController" class="org.springframework.webflow.action.FormAction"
+		parent="baseSimpleForm">
+		<property name="formObjectClass"
+			value="edu.bath.soak.web.bulk.BulkCreateFromRangeCmd" />
+		<property name="formObjectName" value="rangeCmd" />
+		<property name="validator">
+			<bean class="edu.bath.soak.web.bulk.BulkCreateFromRangeCmdValidator">
+				<property name="hostNameEditor" ref="hostNameEditor" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="bulkCreateHostsChooseTypeFormController" class="org.springframework.webflow.action.FormAction"
+		parent="baseSimpleForm">
+		<property name="formObjectClass"
+			value="edu.bath.soak.web.bulk.BulkCreateChooseTypeCmd" />
+		<property name="formObjectName" value="chooseType" />
+	</bean>
+
+
+
+	<bean id="bulkCreateFromCsvCmdValidator" class="edu.bath.soak.web.bulk.BulkCreateFromCsvCmdValidator">
+		<property name="hostsCSVParser" ref="hostsCSVParser" />
+	</bean>
+
+
+
+	<bean id="bulkCreateHostsUploadCSVFormController" class="org.springframework.webflow.action.FormAction"
+		parent="baseSimpleForm">
+		<property name="formObjectClass" value="edu.bath.soak.web.bulk.BulkCreateFromCsvCmd" />
+		<property name="formObjectName" value="csvCmd" />
+		<property name="validator" ref="bulkCreateFromCsvCmdValidator" />
+
+
+	</bean>
+
+	<!---->
+	<!--	<bean id="bulkCreateEditHostDetails"-->
+	<!--		class="org.springframework.webflow.action.FormAction"-->
+	<!--		parent="baseSimpleForm">-->
+	<!--		<property name="formObjectName" value="command" />-->
+	<!--	</bean>-->
+
+
+</beans>

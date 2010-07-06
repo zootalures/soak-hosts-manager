@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd"
+	start-state="setupFlow" >
+	
+	<secured attributes="ROLE_SOAK_USER"/>
+	<persistence-context />
+	<input name="subnetId" value="flowScope.subnetId" type="java.lang.Long"
+		required="false" />
+	<input name="id" value="flowScope.hostId" type="java.lang.Long"
+		required="false" />
+	<input name="restoreId" value="flowScope.restoreId" type="java.lang.Long"
+		required="false" />
+	<decision-state id="setupFlow">
+		<if test="null!=flowScope.hostId" then="checkPerms" />
+		<if test="null==flowScope.hostId" then="canCreate" />
+	</decision-state>
+	<action-state id="checkPerms">
+		<evaluate expression="createHostFormController.checkPermissions" />
+		<transition on="success" to="basicHostDetailsView" />
+		<transition to="permissionDenied" />
+	</action-state>
+	<action-state id="canCreate">
+		<evaluate expression="createHostFormController.canCreate" />
+		<transition on="success" to="chooseHostTypeView" />
+		<transition to="permissionDenied" />
+	</action-state>
+	<view-state id="chooseHostTypeView" view="host/chooseHostType">
+		<on-render>
+			<evaluate expression="createHostFormController.setupForm" />
+			<evaluate expression="createHostFormController.setupCreateReferenceData" />
+		</on-render>
+		<transition on="submit" to="basicHostDetailsView">
+			<evaluate expression="createHostFormController.bindAndValidate">
+				<attribute name="validatorMethod" value="validateHostClass" />
+			</evaluate>
+		</transition>
+	</view-state>
+
+	<!--
+		Basic host details editor   
+	-->
+	<view-state id="basicHostDetailsView" view="host/editHostDetails">
+		<on-render>
+			<evaluate expression="createHostFormController.setupForm" />
+			<evaluate expression="createHostFormController.setupEditReferenceData" />
+		</on-render>
+		<transition on="preview" to="previewChanges">
+			<evaluate expression="createHostFormController.bindAndValidate" />
+		</transition>
+		<transition on="updateHostType" to="basicHostDetailsView">
+			<evaluate expression="createHostFormController.bind" />
+		</transition>
+		<transition on="updateAliases" to="basicHostDetailsView">
+			<evaluate expression="createHostFormController.bindAndValidate">
+				<attribute name="validatorMethod" value="validateHostAliases" />
+			</evaluate>
+		</transition>
+		<transition on="commit" to="applyChanges">
+			<evaluate expression="createHostFormController.bindAndValidate" />
+		</transition>
+	</view-state>
+	<view-state id="previewChanges" view="host/previewChanges">
+		<on-render>
+			<evaluate expression="createHostFormController.calculateChanges" />
+		</on-render>
+		<transition on="back" to="basicHostDetailsView" />
+		<transition on="submit" to="applyChanges" />
+	</view-state>
+	<action-state id="applyChanges">
+		<on-entry>
+			<evaluate expression="createHostFormController.bind" />
+		</on-entry>
+		<evaluate expression="createHostFormController.applyChanges" />
+		<transition on="success" to="completeView" />
+	</action-state>
+	<end-state id="completeView" view="host/hostComplete" commit="true"/>
+	<end-state id="permissionDenied" view="host/permissionDenied" commit="false"/>
+	<bean-import resource="update-host.flowbeans.xml" />
+</flow>

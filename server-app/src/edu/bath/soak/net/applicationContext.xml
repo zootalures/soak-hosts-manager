@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+http://www.springframework.org/schema/aop  http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+
+
+	<description>
+		Core functionality for hosts (editors and managers)
+	</description>
+
+	<bean lazy-init="false"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<description>Property configurer</description>
+		<property name="location">
+			<value>classpath:soak.properties</value>
+		</property>
+		<property name="placeholderPrefix" value="${" />
+	</bean>
+
+
+	<bean id="deleteHostUICmdValidator"
+		class="edu.bath.soak.net.cmd.DeleteHostUICmdValidator">
+		<property name="securityHelper" ref="securityHelper" />
+	</bean>
+	<bean name="hostValidator"
+		class="edu.bath.soak.net.cmd.HostValidator">
+		<description>Validates semantic host integrity</description>
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="securityHelper" ref="securityHelper" />
+	</bean>
+
+	<bean name="alterHostCmdValidator"
+		class="edu.bath.soak.net.cmd.AlterHostCmdValidator">
+		<description>
+			The validator for all alter host commands,
+		</description>
+		<property name="hostValidator" ref="hostValidator" />
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="addressSpaceManager" ref="addressSpaceManager" />
+		<property name="securityHelper" ref="securityHelper" />
+	</bean>
+
+	<bean id="saveHostCmdValidator"
+		class="edu.bath.soak.net.cmd.SaveHostCmdValidator">
+		<property name="hostValidator" ref="hostValidator" />
+	</bean>
+	<bean id="deleteHostDBCmdValidator"
+		class="edu.bath.soak.net.cmd.DeleteHostDBCmdValidator">
+		<property name="hostsDAO" ref="hostsDAO" />
+	</bean>
+
+	<bean id="hostsManager"
+		class="edu.bath.soak.net.HostsManagerImpl">
+		<description>
+			The manager which handles host changes and the
+			implementation and expansion of host commands in other
+			subsystems
+		</description>
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="addressSpaceManager" ref="addressSpaceManager" />
+		<property name="alterHostCmdValidator"
+			ref="alterHostCmdValidator" />
+		<property name="deleteHostUICmdValidator"
+			ref="deleteHostUICmdValidator" />
+		<property name="deleteHostDBCmdValidator"
+			ref="deleteHostDBCmdValidator" />
+		<property name="saveHostCmdValidator"
+			ref="saveHostCmdValidator" />
+		<property name="order">
+			<value>-100</value>
+		</property>
+	</bean>
+
+	<bean id="hostsFileGenerator"
+		class="edu.bath.soak.net.HostsFileGenerator">
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="preamble">
+			<value><![CDATA[##########################################################################
+# Host manager hosts file
+# This file is generated automatically, it should not be edited by hand.
+#########################################################################
+#]]></value>
+		</property>
+		<property name="trimHostNameSuffix">
+			<value>${soak.net.defaultHostNameSuffix}</value>
+		</property>
+		<property name="maxComment" value="100" />
+	</bean>
+
+	<bean name="subnetValidator"
+		class="edu.bath.soak.net.cmd.SubnetValidator">
+		<property name="hostsDAO" ref="hostsDAO" />
+	</bean>
+
+	<bean name="bulkManager"
+		class="edu.bath.soak.imprt.mgr.BulkImportManagerImpl">
+		<property name="hostsManager" ref="hostsManager" />
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="hostValidator" ref="hostValidator" />
+		<property name="subnetValidator" ref="subnetValidator" />
+	</bean>
+
+	<bean name="bulkDeleteHostsManager"
+		class="edu.bath.soak.net.bulk.BulkDeleteHostManagerImpl">
+		<property name="commandDispatcherRegistry"
+			ref="commandDispatcherRegistry" />
+	</bean>
+
+	<bean id="bulkCreateEditHostsManager"
+		class="edu.bath.soak.net.bulk.BulkCreateEditHostsManagerImpl">
+		<property name="securityHelper" ref="securityHelper" />
+		<property name="commandDispatcherRegistry"
+			ref="commandDispatcherRegistry" />
+		<property name="alterHostCmdValidator"
+			ref="alterHostCmdValidator" />
+		<property name="addressSpaceManager" ref="addressSpaceManager" />
+		<property name="hostsDAO" ref="hostsDAO" />
+	</bean>
+
+	<bean name="bulkMoveHostsManager"
+		class="edu.bath.soak.net.bulk.BulkMoveHostsManagerImpl">
+		<property name="commandDispatcherRegistry"
+			ref="commandDispatcherRegistry" />
+		<property name="securityHelper" ref="securityHelper" />
+		<property name="alterHostCmdValidator"
+			ref="alterHostCmdValidator" />
+		<property name="addressSpaceManager" ref="addressSpaceManager" />
+		<property name="hostsDAO" ref="hostsDAO" />
+	</bean>
+
+
+
+	<bean id="hostsCSVParser" class="edu.bath.soak.net.CSVParser">
+		<property name="propertyEditorRegistrar"
+			ref="customEditorRegistrar" />
+		<property name="beanClass" value="edu.bath.soak.net.model.Host" />
+		<property name="minEntries" value="1"/>
+		<property name="fields">
+			<list>
+				<value>hostName</value>
+				<value>macAddress</value>
+				<value>ipAddress</value>
+				<value>hostClass</value>
+				<value>ownership.orgUnit</value>
+				<value>location.building</value>
+				<value>location.room</value>
+				<value>description</value>
+			</list>
+		</property>
+
+	</bean>
+
+
+	<bean
+		class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
+
+	<bean id="hostNameEditor"
+		class="edu.bath.soak.propertyeditors.HostNameEditor">
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="defaultSuffix">
+			<value>${soak.net.defaultHostNameSuffix}</value>
+		</property>
+	</bean>
+
+	<bean id="soakPlugin" class="edu.bath.soak.SoakCorePlugin">
+		<property name="pluginName" value="Host manager core" />
+		<property name="pluginDescription">
+			<value>
+				Contains all of the core host and network modification
+				functionality.
+			</value>
+		</property>
+		<property name="pluginUrl"
+			value="http://wiki.bath.ac.uk/display/bucshosts/" />
+		<property name="pluginVersion" value="0.5.0" />
+
+		<property name="addressManagerAdvisors">
+			<list>
+				<bean
+					class="edu.bath.soak.mgr.AvoidHighAndLowAddressesAdvisor" />
+			</list>
+		</property>
+		<property name="customPropertyEditors">
+			<map>
+				<entry key="java.net.Inet4Address">
+					<ref bean="ipAddressEditor" />
+				</entry>
+				<entry key="edu.bath.soak.util.MacAddress">
+					<bean
+						class="edu.bath.soak.propertyeditors.MacAddressEditor">
+					</bean>
+				</entry>
+				<entry key="edu.bath.soak.net.model.Host">
+					<bean
+						class="edu.bath.soak.propertyeditors.HostEditor">
+						<property name="hostsDAO" ref="hostsDAO" />
+					</bean>
+				</entry>
+
+				<entry key="edu.bath.soak.net.model.HostClass">
+					<bean
+						class="edu.bath.soak.propertyeditors.HostClassEditor">
+						<property name="hostsDAO" ref="hostsDAO" />
+					</bean>
+				</entry>
+
+				<entry key="edu.bath.soak.net.model.HostName">
+					<ref bean="hostNameEditor" />
+				</entry>
+
+				<entry key="edu.bath.soak.net.model.NameDomain">
+					<bean
+						class="edu.bath.soak.propertyeditors.NameDomainEditor">
+						<property name="hostsDAO" ref="hostsDAO" />
+					</bean>
+				</entry>
+				<entry key="edu.bath.soak.net.model.NetworkClass">
+					<bean
+						class="edu.bath.soak.propertyeditors.NetworkClassEditor">
+						<property name="hostsDAO" ref="hostsDAO" />
+					</bean>
+				</entry>
+				<entry key="edu.bath.soak.model.OrgUnit">
+					<bean
+						class="edu.bath.soak.propertyeditors.OrgUnitEditor">
+						<property name="hostsDAO" ref="hostsDAO" />
+					</bean>
+				</entry>
+				<entry key="edu.bath.soak.net.model.Subnet">
+					<bean
+						class="edu.bath.soak.propertyeditors.SubnetEditor">
+						<property name="hostsDAO" ref="hostsDAO" />
+					</bean>
+				</entry>
+				<entry key="edu.bath.soak.net.model.Vlan">
+					<bean
+						class="edu.bath.soak.propertyeditors.VlanEditor">
+						<property name="hostsDAO" ref="hostsDAO" />
+					</bean>
+				</entry>
+			</map>
+		</property>
+		<property name="commandProcessors">
+			<list>
+				<ref bean="hostsManager" />
+			</list>
+		</property>
+		<property name="commandExpanders">
+			<list>
+				<ref bean="hostsManager" />
+				<ref bean="undoManager" />
+				<ref bean="bulkDeleteHostsManager" />
+				<ref bean="bulkMoveHostsManager" />
+				<ref bean="bulkCreateEditHostsManager" />
+			</list>
+		</property>
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="propertyEditorRegistrar"
+			ref="customEditorRegistrar" />
+		<property name="addressSpaceManager" ref="addressSpaceManager" />
+		<property name="commandDispatcherRegistry"
+			ref="commandDispatcherRegistry" />
+		<property name="xmlManager" ref="xmlManager" />
+
+	</bean>
+
+</beans>

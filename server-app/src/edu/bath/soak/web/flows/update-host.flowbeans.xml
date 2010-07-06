@@ -1,0 +1,35 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                       http://www.springframework.org/schema/aop 
+                       http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+                       http://www.springframework.org/schema/tx 
+                       http://www.springframework.org/schema/tx/spring-tx-2.0.xsd">
+
+	<bean name="createHostFormController"
+		class="edu.bath.soak.web.host.CreateHostFormController">
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="validator" ref="alterHostCmdValidator" />
+		<property name="commandDispatcherRegistry"
+			ref="commandDispatcherRegistry" />
+		<property name="customEditorRegistrar"
+			ref="customEditorRegistrar" /> 
+		<property name="hostsMgr" ref="hostsManager" />
+		<property name="formObjectName" value="editHostCmd" />
+		<property name="securityHelper" ref="securityHelper" />
+	</bean>
+	<bean name="deleteHostFormController"
+		class="edu.bath.soak.web.host.DeleteHostFormController">
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="commandDispatcherRegistry"
+			ref="commandDispatcherRegistry" /> 
+		<property name="formObjectName" value="deleteHostCmd" />
+		<property name="securityHelper" ref="securityHelper" />
+
+	</bean>
+
+
+</beans>

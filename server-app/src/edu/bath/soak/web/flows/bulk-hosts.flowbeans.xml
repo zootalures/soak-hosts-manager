@@ -1,0 +1,86 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                       http://www.springframework.org/schema/aop 
+                       http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+                       http://www.springframework.org/schema/tx 
+                       http://www.springframework.org/schema/tx/spring-tx-2.0.xsd">
+
+	<bean id="bulkHostsFlowController"
+		class="edu.bath.soak.web.bulk.BulkHostsFlowController">
+		<property name="commandDispatcherRegistry"
+			ref="commandDispatcherRegistry" />
+		<property name="bulkMoveHostsManager"
+			ref="bulkMoveHostsManager" />
+		<property name="bulkCreateEditHostsManager"
+			ref="bulkCreateEditHostsManager" />
+		<property name="starredHostsManager" ref="starredHostsManager" />
+		<property name="securityHelper" ref="securityHelper" />
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="dataSourceRegistry" ref="dataSourceRegistry" />
+
+	</bean>
+
+	<bean id="bulkCreateEditHostsFormController"
+		class="edu.bath.soak.web.bulk.NoOverwriteErrorsOnBindCustomFormController"
+		parent="baseSimpleForm">
+		<property name="validator" ref="bulkCreateEditHostsManager" />
+		<property name="formErrorsScope" value="FLOW" />
+		<property name="formObjectName" value="command" />
+	</bean>
+
+	<bean id="bulkSetHostDetailsCmdValidator"
+		class="edu.bath.soak.web.bulk.BulkSetHostDetailsCmdValidator">
+		<property name="securityHelper" ref="securityHelper" />
+	</bean>
+
+	<bean id="bulkSetHostDetailsFormController"
+		class="org.springframework.webflow.action.FormAction"
+		parent="baseSimpleForm">
+		<property name="formObjectName" value="setDetailsCmd" />
+		<property name="formObjectClass"
+			value="edu.bath.soak.web.bulk.BulkSetHostDetailsCmd" />
+		<property name="validator" ref="bulkSetHostDetailsCmdValidator" />
+	</bean>
+
+	<bean id="bulkSetIPsCmdValidator"
+		class="edu.bath.soak.web.bulk.BulkSetIPsCmdValidator">
+		<property name="securityHelper" ref="securityHelper" />
+	</bean>
+
+	<bean id="bulkSetIPsFormController"
+		class="org.springframework.webflow.action.FormAction"
+		parent="baseSimpleForm">
+		<property name="formObjectName" value="setIPsCmd" />
+		<property name="formObjectClass"
+			value="edu.bath.soak.web.bulk.BulkSetIPsCmd" />
+		<property name="validator" ref="bulkSetIPsCmdValidator" />
+	</bean>
+
+	<bean id="bulkApplyFilterFormController"
+		class="org.springframework.webflow.action.FormAction"
+		parent="baseSimpleForm">
+		<property name="formObjectName" value="applyFilterCmd" />
+		<property name="formObjectClass"
+			value="edu.bath.soak.web.bulk.BulkApplyFilterCmd" />
+	</bean>
+
+	<bean id="bulkMoveHostsFormController"
+		class="org.springframework.webflow.action.FormAction"
+		parent="baseSimpleForm">
+		<property name="formObjectName" value="command" />
+		<property name="validator" ref="bulkMoveHostsManager" />
+
+	</bean>
+
+
+	<bean id="previewDeleteFormController"
+		class="org.springframework.webflow.action.FormAction">
+		<property name="formObjectName" value="command" />
+
+	</bean>
+
+</beans>

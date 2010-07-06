@@ -1,0 +1,7 @@
+edu.bath.soak.dhcp.model.DBBackedDHCPServer
+edu.bath.soak.dhcp.model.DHCPReservation
+edu.bath.soak.dhcp.model.DHCPReservationChange
+edu.bath.soak.dhcp.model.DHCPScope
+edu.bath.soak.dhcp.model.DHCPServer
+edu.bath.soak.dhcp.model.StaticDHCPReservation
+edu.bath.soak.dhcp.model.WSDHCPServer

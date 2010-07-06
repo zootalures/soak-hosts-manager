@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:flow="http://www.springframework.org/schema/webflow-config"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                       http://www.springframework.org/schema/aop 
+                       http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+                       http://www.springframework.org/schema/tx 
+                       http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+                       http://www.springframework.org/schema/webflow-config
+                       http://www.springframework.org/schema/webflow-config/spring-webflow-config-1.0.xsd">
+
+
+	<description>Web-tier beans for the DHCP plugin</description>
+	<bean id="dhcpController"
+		class="edu.bath.soak.web.dhcp.DHCPController">
+		<property name="dhcpDao" ref="dhcpDAO" />
+		<property name="dhcpMgr" ref="dhcpMgr" />
+		<property name="hostsDAO" ref="hostsDAO" />
+	</bean>
+	<bean id="dhcpViewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<description>The conventional view descriptor.</description>
+		<property name="viewNames">
+			<list>
+				<value>dhcp/*</value>
+			</list>
+		</property>
+
+
+		<property name="prefix" value="/WEB-INF/view/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+	<bean id="dhcpServerFormController"
+		class="edu.bath.soak.web.dhcp.DHCPServerFormController">
+		<property name="dhcpDao" ref="dhcpDAO" />
+		<property name="formView" value="dhcp/updateServer" />
+		<property name="successView"
+			value="redirect:/dhcp/listServers.do" />
+		<property name="commandName" value="server" />
+		<property name="propertyEditorRegistrar"
+			ref="customEditorRegistrar" />
+	</bean>
+	<bean id="dhcpBeanViewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<description>The DNS view resolver.</description>
+		<property name="viewNames">
+			<list>
+				<value>beanview/dhcp/*</value>
+			</list>
+		</property>
+		<property name="prefix" value="/WEB-INF/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+	<bean name="dhcpHostViewInterceptor"
+		class="edu.bath.soak.web.dhcp.DHCPHostViewInfoInterceptor">
+		<property name="hostsDHCPInterceptor"
+			ref="dhcpHostsInterceptor" />
+	</bean>
+
+	<bean id="dhcpWebPlugin" class="edu.bath.soak.SoakWebPlugin">
+		<property name="pluginName" value="DHCP Web plugin" />
+		<property name="pluginVersion" value="0.0.1" />
+		<property name="pluginConfigUrl" value="/dhcp/listServers.do" />
+		<property name="pluginDescription">
+			<value>
+				Web plugin for the DHCP plugin, adds DHCP info to the
+				host view
+			</value>
+		</property>
+
+		<property name="showHostInterceptors">
+			<list>
+				<ref bean="dhcpHostViewInterceptor" />
+			</list>
+		</property>
+		<property name="hostInfoController" ref="hostInfoController" />
+	</bean>
+
+
+	<bean name="dhcpHandlerMap"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping"
+		parent="baseHandlerMapping">
+
+
+		<property name="urlMap">
+			<map>
+
+				<entry key="/dhcp/listServers.do"
+					value-ref="dhcpController" />
+				<entry key="/admin/dhcp/updateServer.do"
+					value-ref="dhcpController" />
+				<entry key="/admin/dhcp/updateScopes.do"
+					value-ref="dhcpController" />
+				<entry key="/admin/dhcp/exportDHCPData.do"
+					value-ref="dhcpController" />
+				<entry key="/admin/dhcp/updateSingleScope.do"
+					value-ref="dhcpController" />
+				<entry key="/dhcp/viewScope.do"
+					value-ref="dhcpController" />
+				<entry key="/admin/dhcp/editServer.do"
+					value-ref="dhcpServerFormController" />
+			</map>
+		</property>
+	</bean>
+
+	<bean
+		class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
+
+</beans>

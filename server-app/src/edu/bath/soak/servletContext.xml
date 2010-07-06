@@ -1,0 +1,684 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:flow="http://www.springframework.org/schema/webflow-config"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                       http://www.springframework.org/schema/aop 
+                       http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+                       http://www.springframework.org/schema/tx 
+                       http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+                       http://www.springframework.org/schema/webflow-config
+                       http://www.springframework.org/schema/webflow-config/spring-webflow-config-2.0.xsd">
+
+
+	<description>
+		Core servlet functionality, includes all web-tier
+		controllers
+		and stuff
+	</description>
+
+
+	<bean id="webPluginManager" class="edu.bath.soak.PluginManager"></bean>
+
+	<bean lazy-init="false"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<description>Property configurer</description>
+		<property name="location">
+			<value>classpath:soak.properties</value>
+		</property>
+		<property name="placeholderPrefix" value="${" />
+	</bean>
+
+	<bean id="baseSimpleForm" abstract="true">
+		<description>
+			Base type for SimpleFormController derrived forms, set
+			the
+			property editor settings for these forms
+		</description>
+		<property name="propertyEditorRegistrar" ref="customEditorRegistrar" />
+	</bean>
+
+	<bean id="subnetController" class="edu.bath.soak.web.subnet.SubnetController">
+		<description>
+			Subnet controller, deals with read-only operations on
+			subnets
+		</description>
+		<property name="hostsDAO" ref="hostsDAO" />
+
+	</bean>
+
+
+	<bean id="editNameDomainFormController"
+		class="edu.bath.soak.web.admin.namedomain.EditNameDomainFormController"
+		parent="baseSimpleForm">
+		<description>
+			Form controller for creating name domains
+		</description>
+
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="formView" value="admin/editND" />
+		<property name="successView"
+			value="redirect:/admin/nameDomains.do?flash=namedomain-edited" />
+		<property name="commandName" value="editNameDomainCmd" />
+		<property name="validator">
+			<bean
+				class="edu.bath.soak.web.admin.namedomain.EditNameDomainCommandValidator">
+				<property name="hostsDAO" ref="hostsDAO" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="deleteNameDomainFormController"
+		class="edu.bath.soak.web.admin.namedomain.DeleteNameDomainFormController"
+		parent="baseSimpleForm">
+		<description>
+			Form controller for deleting name domains
+		</description>
+
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="formView" value="admin/deleteND" />
+		<property name="successView"
+			value="redirect:/admin/nameDomains.do?flash=namedomain-deleted" />
+		<property name="commandName" value="deleteNameDomainCmd" />
+		<property name="validator">
+			<bean
+				class="edu.bath.soak.web.admin.namedomain.DeleteNameDomainCommandValidator">
+				<property name="hostsDAO" ref="hostsDAO" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="editNetworkClassFormController"
+		class="edu.bath.soak.web.admin.networkclass.EditNetworkClassFormController"
+		parent="baseSimpleForm">
+		<description>
+			Form controller for editing/creating network classses
+		</description>
+		<property name="commandName" value="editNetworkClassCmd" />
+
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="formView" value="admin/editNC" />
+		<property name="successView"
+			value="redirect:/admin/netClasses.do?flash=netclass-edited" />
+
+		<property name="validator">
+			<bean
+				class="edu.bath.soak.web.admin.networkclass.EditNetworkClassCommandValidator">
+				<property name="hostsDAO" ref="hostsDAO" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="deleteNetworkClassFormController"
+		class="edu.bath.soak.web.admin.networkclass.DeleteNetworkClassFormController"
+		parent="baseSimpleForm">
+		<description>
+			Form controller for deleting network classes
+		</description>
+
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="formView" value="admin/deleteNC" />
+		<property name="successView"
+			value="redirect:/admin/netClasses.do?flash=netclass-deleted" />
+		<property name="commandName" value="deleteNetworkClassCmd" />
+
+		<property name="validator">
+			<bean
+				class="edu.bath.soak.web.admin.networkclass.DeleteNetworkClassCommandValidator">
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="editSubnetFormController" class="edu.bath.soak.web.subnet.EditSubnetFormController"
+		parent="baseSimpleForm">
+		<description>Form controller for editing subnets</description>
+
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="validator">
+			<bean class="edu.bath.soak.web.subnet.EditSubnetCommandValidator">
+				<property name="hostsDAO" ref="hostsDAO" />
+			</bean>
+		</property>
+		<property name="successView" value="redirect:/subnet/list.do" />
+	</bean>
+
+	<bean id="hostChangeSearchFormController" class="edu.bath.soak.web.host.HostChangeSearchFormController"
+		parent="baseSimpleForm">
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="securityHelper" ref="securityHelper" />
+
+	</bean>
+	<bean id="editOrgUnitFormController" class="edu.bath.soak.web.admin.ou.EditOrgUnitFormController"
+		parent="baseSimpleForm">
+		<description>
+			Form controller for editing Org Unit information
+		</description>
+
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="formView" value="admin/editOrgUnit" />
+		<property name="commandName" value="editOrgUnitCmd" />
+		<property name="successView"
+			value="redirect:/admin/orgUnits.do?flash=orgunit-updated" />
+	</bean>
+
+	<bean id="deleteOrgUnitFormController" class="edu.bath.soak.web.admin.ou.DeleteOrgUnitFormController"
+		parent="baseSimpleForm">
+		<description>
+			Form controller for deleting Org units
+		</description>
+
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="formView" value="admin/deleteOrgUnit" />
+		<property name="commandName" value="deleteOrgUnitCmd" />
+		<property name="successView"
+			value="redirect:/admin/orgUnits.do?flash=orgunit-deleted" />
+	</bean>
+
+	<bean id="editOrgUnitAclEntityController"
+		class="edu.bath.soak.web.admin.ou.EditOrgUnitAclEntityController"
+		parent="baseSimpleForm">
+		<description>
+			Edits which org units can use a particular entity
+		</description>
+		<property name="formView" value="admin/editOrgUnitAclEntry" />
+		<property name="commandName" value="editOrgUnitAclEntityCommand" />
+		<property name="successView"
+			value="redirect:/admin/orgUnits.do?flash=acls-updated" />
+		<property name="securityHelper" ref="securityHelper" />
+
+		<property name="hostsDAO" ref="hostsDAO" />
+	</bean>
+
+	<bean id="editOrgUnitAclsFormController"
+		class="edu.bath.soak.web.admin.ou.EditOrgUnitAclsFormController"
+		parent="baseSimpleForm">
+		<description>
+			Edits entities a particular org unit can use
+		</description>
+
+		<property name="formView" value="admin/editOrgUnitAcls" />
+		<property name="commandName" value="editOrgUnitAclsCommand" />
+		<property name="successView"
+			value="redirect:/admin/orgUnits.do?flash=acls-updated" />
+		<property name="hostsDAO" ref="hostsDAO" />
+	</bean>
+
+	<bean id="vlanController" class="edu.bath.soak.web.vlan.VlanController">
+		<description>
+			View controller for editing/creating Vlans
+		</description>
+
+		<property name="hostsDAO" ref="hostsDAO" />
+	</bean>
+
+	<bean id="vlanFormController" class="edu.bath.soak.web.vlan.VlanFormController">
+		<description>
+			Form controller for editing/creating Vlans
+		</description>
+
+
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="formView" value="vlan/edit" />
+		<property name="successView" value="redirect:/vlan/list.do" />
+		<property name="propertyEditorRegistrar" ref="customEditorRegistrar" />
+		<property name="validator">
+			<bean class="edu.bath.soak.web.vlan.VlanValidator">
+				<property name="hostsDAO" ref="hostsDAO" />
+			</bean>
+		</property>
+
+	</bean>
+
+	<bean id="deleteVlanFormController" class="edu.bath.soak.web.vlan.DeleteVlanFormController"
+		parent="baseSimpleForm">
+
+		<description>Form controller for deleting Vlans</description>
+
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="formView" value="vlan/delete" />
+		<property name="successView" value="redirect:/vlan/list.do" />
+
+	</bean>
+
+	<bean id="editHostClassFormController"
+		class="edu.bath.soak.web.admin.hostclass.EditHostClassFormController"
+		parent="baseSimpleForm">
+
+		<description>
+			Form controller for editing host classes
+		</description>
+
+		<property name="commandName" value="editHostClassCmd" />
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="formView" value="admin/editHC" />
+		<property name="successView"
+			value="redirect:/admin/hostClasses.do?flash=hostclass-updated" />
+
+		<property name="validator">
+			<bean
+				class="edu.bath.soak.web.admin.hostclass.EditHostClassCommandValidator">
+				<property name="hostsDAO" ref="hostsDAO" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="deleteHostClassFormController"
+		class="edu.bath.soak.web.admin.hostclass.DeleteHostClassFormController"
+		parent="baseSimpleForm">
+
+		<description>
+			Form controller for deleting host classes
+		</description>
+
+		<property name="commandName" value="deleteHostClassCmd" />
+
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="formView" value="admin/deleteHC" />
+		<property name="successView"
+			value="redirect:/admin/hostClasses.do?flash=hostclass-deleted" />
+
+	</bean>
+	<bean id="soakFlowExecutionListener" class="edu.bath.soak.web.SoakFlowExecutionListener">
+	</bean>
+
+	<bean id="hibernateFlowExecutionListener"
+		class="org.springframework.webflow.persistence.HibernateFlowExecutionListener">
+		<constructor-arg ref="soakspringSessionFactory" />
+		<constructor-arg ref="transactionManager" />
+	</bean>
+<bean id="securityFlowExecutionListener" 
+      class="org.springframework.webflow.security.SecurityFlowExecutionListener" />
+
+	<flow:flow-executor id="flowExecutor" flow-registry="flowRegistry">
+		<flow:flow-execution-listeners>
+			<flow:listener ref="soakFlowExecutionListener" />
+			<flow:listener ref="hibernateFlowExecutionListener" />
+			<flow:listener ref="securityFlowExecutionListener"/>
+		</flow:flow-execution-listeners>
+	</flow:flow-executor>
+
+
+	<flow:flow-builder-services id="flowBuilderServices"
+		view-factory-creator="flowViewFactoryCreator" />
+
+	<bean id="flowViewFactoryCreator"
+		class="org.springframework.webflow.mvc.builder.MvcViewFactoryCreator">
+		<property name="viewResolvers">
+			<list>
+				<ref bean="hostsViewResolver" />
+				<ref bean="hostsBeanViewResolver" />
+			</list>
+		</property>
+	</bean>
+
+
+	<flow:flow-registry id="flowRegistry"
+		flow-builder-services="flowBuilderServices">
+		<flow:flow-location-pattern value="classpath:edu/bath/soak/web/flows/*-flow.xml" />
+
+	</flow:flow-registry>
+
+	<bean id="hostInfoController" class="edu.bath.soak.web.host.HostInfoController">
+		<description>
+			View controller for implementing the host view plugins
+			can
+			register interceptors which augment this view
+		</description>
+
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="hostsManager" ref="hostsManager" />
+		<property name="securityHelper" ref="securityHelper" />
+	</bean>
+
+	<bean id="hostsFileController" class="edu.bath.soak.web.host.HostsFileController">
+		<property name="hostsFileGenerator" ref="hostsFileGenerator" />
+	</bean>
+	<bean id="hostSearchController" class="edu.bath.soak.web.host.HostSearchController"
+		parent="baseSimpleForm">
+		<description>
+			View controller for implementing the host search view
+		</description>
+
+
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="formView" value="host/search" />
+		<property name="successView" value="host/search" />
+		<property name="commandName" value="s" />
+		<property name="commandClass" value="edu.bath.soak.net.query.HostSearchQuery" />
+		<property name="starredHostsManager" ref="starredHostsManager" />
+
+	</bean>
+
+	<bean id="subnetListController" class="edu.bath.soak.web.subnet.SubnetListController">
+		<description>View Controller for subnets</description>
+
+
+		<property name="hostsDAO" ref="hostsDAO" />
+	</bean>
+
+	<bean id="systemExportController" class="edu.bath.soak.web.imprt.XMLSystemExport">
+		<description>
+			View Controller for exporting system information
+		</description>
+
+		<property name="hostsDAO" ref="hostsDAO" />
+	</bean>
+
+	<bean id="starredHostsController" class="edu.bath.soak.web.host.StarredHostsController">
+		<description>
+			View controller for searching and viewing currently
+			selected
+			hosts
+		</description>
+
+
+		<property name="starredHostsManager" ref="starredHostsManager" />
+		<property name="hostSearchController" ref="hostSearchController" />
+		<property name="hostsDAO" ref="hostsDAO" />
+	</bean>
+
+	<bean id="storedCommandController" class="edu.bath.soak.web.undo.StoredCommandController">
+		<description>
+			View controller for current user information
+		</description>
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="securityHelper" ref="securityHelper" />
+	</bean>
+
+	<bean id="userController" class="edu.bath.soak.web.user.UserController">
+		<description>
+			View controller for current user information
+		</description>
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="securityHelper" ref="securityHelper" />
+		<property name="userDetailsService" ref="userDetailsService" />
+	</bean>
+
+	<bean id="searchRecentCommandsController"
+		class="edu.bath.soak.web.undo.SearchRecentCommandsFormController">
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="securityHelper" ref="securityHelper" />
+	</bean>
+
+
+	<bean id="flashMessageInterceptor" class="edu.bath.soak.web.FlashMessageInterceptor">
+		<description>
+			Resolves flash messages for the curent view.
+		</description>
+
+		<property name="messageSource" ref="messageSource" />
+	</bean>
+
+	<bean id="starredHostsInterceptor" class="edu.bath.soak.web.StarredHostInfoInterceptor">
+		<description>
+			Injects information about which hosts are starred into
+			the
+			model for non-redirect views
+		</description>
+
+		<property name="starredHostsManager" ref="starredHostsManager" />
+	</bean>
+
+
+	<bean id="userDetailsInterceptor" class="edu.bath.soak.web.UserDetailsInterceptor">
+		<description>
+			Injects user details information into any non-redirect
+			views
+			(used for template)
+		</description>
+	</bean>
+
+	<bean id="coreHostsViewInterceptor" class="edu.bath.soak.web.DelegatingHookableViewInterceptor">
+
+	</bean>
+
+	<bean abstract="true" id="baseHandlerMapping">
+
+		<description>
+			Base bean for handlerMapping beans used in plugins, users
+			wanting to see generic pages should extends this bean
+		</description>
+		<property name="interceptors">
+			<list>
+				<ref bean="userDetailsInterceptor" />
+				<ref bean="flashMessageInterceptor" />
+				<ref bean="starredHostsInterceptor" />
+				<ref bean="coreHostsViewInterceptor" />
+			</list>
+		</property>
+	</bean>
+
+
+	<bean id="hostsHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping"
+		parent="baseHandlerMapping">
+		<description>
+			The controller handler mapping bean (default name).
+		</description>
+
+		<property name="urlMap">
+			<map>
+				<entry key="/flow/*" value-ref="flowController" />
+
+				<entry key="/rest/searchhosts.do" value-ref="hostSearchController" />
+				<entry key="/rest/searchsubnets.do" value-ref="subnetListController" />
+
+				<entry key="/host/search.do" value-ref="hostSearchController" />
+				<entry key="/host/show.do" value-ref="hostInfoController" />
+				<entry key="/host/showChange.do" value-ref="hostInfoController" />
+
+				<entry key="/host/hostsFile.do" value-ref="hostsFileController" />
+
+				<entry key="/host/showStarred.do" value-ref="starredHostsController" />
+				<entry key="/host/setStarredAjax.do" value-ref="starredHostsController" />
+				<entry key="/host/clearAllStarredAjax.do" value-ref="starredHostsController" />
+				<entry key="/host/starSearch.do" value-ref="starredHostsController" />
+				<entry key="/host/starredHostsFragment.do" value-ref="starredHostsController" />
+
+				<entry key="/vlan/list.do" value-ref="vlanController" />
+				<entry key="/vlan/xml.do" value-ref="vlanController" />
+				<entry key="/vlan/show.do" value-ref="vlanController" />
+				<entry key="/admin/vlan/edit.do" value-ref="vlanFormController" />
+				<entry key="/admin/vlan/delete.do" value-ref="deleteVlanFormController" />
+
+				<entry key="/subnet/list.do" value-ref="subnetListController" />
+				<entry key="/subnet/xml.do" value-ref="subnetController" />
+				<entry key="/subnet/view.do" value-ref="subnetController" />
+				<entry key="/admin/subnet/edit.do" value-ref="editSubnetFormController" />
+				<entry key="/admin/subnet/delete.do" value-ref="subnetController" />
+				<entry key="/changes/search.do" value-ref="hostChangeSearchFormController" />
+
+				<entry key="/admin/exportXML.do" value-ref="systemExportController" />
+				<entry key="/admin/exportDHCPData.do" value-ref="dhcpController" />
+				<entry key="/admin/editNCHCPermissions.do" value-ref="networkClassHostClassPermissionsForm" />
+				<entry key="/admin/editHC.do" value-ref="editHostClassFormController" />
+				<entry key="/admin/editOrgUnitAclEntity.do" value-ref="editOrgUnitAclEntityController" />
+				<entry key="/admin/editOU.do" value-ref="editOrgUnitFormController" />
+				<entry key="/admin/editOrgUnitAcls.do" value-ref="editOrgUnitAclsFormController" />
+
+				<entry key="/orgunit/showOrgUnit.do" value-ref="adminController" />
+				<entry key="/admin/deleteOU.do" value-ref="deleteOrgUnitFormController" />
+				<entry key="/admin/deleteHC.do" value-ref="deleteHostClassFormController" />
+				<entry key="/admin/editNDPermissions.do" value-ref="nameDomainPermissionForm" />
+				<entry key="/admin/showNameDomain.do" value-ref="adminController" />
+				<entry key="/admin/index.do" value-ref="adminController" />
+				<entry key="/admin/hostClasses.do" value-ref="adminController" />
+				<entry key="/admin/netClasses.do" value-ref="adminController" />
+				<entry key="/admin/nameDomains.do" value-ref="adminController" />
+				<entry key="/admin/orgUnits.do" value-ref="adminController" />
+				<entry key="/admin/plugins.do" value-ref="adminController" />
+
+				<entry key="/admin/editNC.do" value-ref="editNetworkClassFormController" />
+				<entry key="/admin/deleteNC.do" value-ref="deleteNetworkClassFormController" />
+				<entry key="/admin/editND.do" value-ref="editNameDomainFormController" />
+				<entry key="/admin/deleteND.do" value-ref="deleteNameDomainFormController" />
+				<entry key="/user/details.do" value-ref="userController" />
+				<entry key="/undo/showCommand.do" value-ref="storedCommandController" />
+
+				<entry key="/undo/recentCommands.do" value-ref="searchRecentCommandsController" />
+
+
+			</map>
+		</property>
+	</bean>
+
+
+
+	<bean id="flowController" class="org.springframework.webflow.mvc.servlet.FlowController">
+		<description>Flow controller</description>
+		<property name="flowExecutor" ref="flowExecutor" />
+	</bean>
+
+	<bean id="soakCoreWebPlugin" class="edu.bath.soak.SoakWebPlugin">
+		<property name="pluginName" value="Core Web plugin" />
+		<property name="pluginVersion" value="0.5.0" />
+		<property name="pluginConfigUrl" value="/admin/index.do" />
+		<property name="pluginDescription">
+			<value>Web plugin for the core system</value>
+		</property>
+
+		<property name="consoleInfoInfoProviders">
+			<list>
+				<ref bean="adminController" />
+			</list>
+		</property>
+		<property name="hostInfoController" ref="hostInfoController" />
+	</bean>
+
+
+
+	<bean id="adminController" class="edu.bath.soak.web.admin.AdminController">
+		<description>
+			the top-level admin controller, provides t he read-only
+			information for internal administration
+		</description>
+
+		<property name="securityHelper" ref="securityHelper" />
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="pluginManager" ref="pluginManager" />
+		<property name="webPluginManager" ref="webPluginManager" />
+	</bean>
+
+	<bean id="starredHostsManager" class="edu.bath.soak.net.StarredHostsManagerImpl">
+		<description>
+			Manager which stores (via a starred Hosts Holder) the set
+			of
+			selected hosts in the current session
+		</description>
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="holder">
+			<bean class="edu.bath.soak.net.StarredHostsHolder" scope="session">
+				<aop:scoped-proxy />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="nameDomainPermissionForm" class="edu.bath.soak.web.admin.NameDomainPermissionForm">
+		<description>
+			Form controller which allows mapping of which host
+			classes
+			can be created on which name domains
+		</description>
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="commandName" value="command" />
+		<property name="formView" value="admin/editNDPermissions" />
+		<property name="successView" value="redirect:/admin/nameDomains.do" />
+
+	</bean>
+
+	<bean id="networkClassHostClassPermissionsForm"
+		class="edu.bath.soak.web.admin.NetworkClassHostClassPermissionsForm">
+		<description>
+			Form controller which allows mapping of which host
+			classes
+			are permitted to be created on which network classes
+		</description>
+
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="commandName" value="command" />
+		<property name="formView" value="admin/editNCHCPermissions" />
+		<property name="successView" value="redirect:/admin/netClasses.do" />
+
+	</bean>
+
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- one of the properties available; the maximum file size in bytes -->
+		<property name="maxUploadSize" value="10000000" />
+	</bean>
+
+
+	<bean id="hostsViewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<description>The conventional view descriptor.</description>
+		<property name="viewNames">
+			<list>
+
+				<value>redirect:*</value>
+				<value>admin/*</value>
+				<value>bulk/*</value>
+				<value>changes/*</value>
+				<value>errors/*</value>
+				<value>host/*</value>
+				<value>subnet/*</value>
+				<value>undo/*</value>
+				<value>user/*</value>
+				<value>vlan/*</value>
+				<value>orgunit/*</value>
+			</list>
+		</property>
+
+		<property name="prefix" value="/WEB-INF/view/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<bean id="hostsBeanViewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<description>The conventional view descriptor.</description>
+		<property name="viewNames">
+			<list>
+				<value>beanview/host/*</value>
+				<value>beanview/core/*</value>
+				<value>beanview/admin/*</value>
+			</list>
+		</property>
+
+		<property name="prefix" value="/WEB-INF/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<bean id="soakTagConfig" class="edu.bath.soak.web.tags.SoakTagConfig">
+		<description>Configuration bean for tag classes,
+		</description>
+		<property name="helpBase" value="${soak.net.helpBase}" />
+		<property name="defaultHostNameSuffix" value="${soak.net.defaultHostNameSuffix}" />
+	</bean>
+
+
+	<bean id="exceptionHandlerResolver"
+		class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionAttribute" value="theException" />
+		<property name="exceptionMappings">
+			<props>
+				<prop key="java.lang.Exception">
+					errors/generalError
+				</prop>
+				<prop key="FlowExecutionRestorationFailureException">
+					errors/flowFailed
+				</prop>
+				<prop key="java.lang.IllegalStateException">
+					errors/flowFailed
+				</prop>
+				<prop key="ObjectNotFoundException">
+					errors/hostDoesNotExist
+				</prop>
+
+			</props>
+		</property>
+	</bean>
+
+
+	<bean
+		class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
+
+</beans>

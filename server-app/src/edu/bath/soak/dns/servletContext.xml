@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:flow="http://www.springframework.org/schema/webflow-config"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                       http://www.springframework.org/schema/aop 
+                       http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+                       http://www.springframework.org/schema/tx 
+                       http://www.springframework.org/schema/tx/spring-tx-2.0.xsd">
+	<description>
+		DNS Web context includes controllers url map and the plugin bean
+		for the DNS system
+	</description>
+
+	<bean id="dnsController"
+		class="edu.bath.soak.web.dns.DNSController">
+		<property name="dnsDAO" ref="dnsDAO" />
+		<property name="dnsUpdateMgr" ref="dnsUpdateMgr" />
+	</bean>
+
+	<bean id="dnsHostViewInterceptor"
+		class="edu.bath.soak.web.dns.DNSHostViewInfoInterceptor">
+		<property name="dnsHostsInteceptor" ref="dnsHostsInterceptor" />
+	</bean>
+
+	<bean id="dnsWebPlugin" class="edu.bath.soak.SoakWebPlugin">
+		<property name="pluginName" value="DNS Web plugin" />
+		<property name="pluginVersion" value="0.0.1" />
+		<property name="pluginConfigUrl" value="/dns/list.do" />
+		<property name="pluginDescription">
+			<value>
+				Web plugin for the DNS plugin, adds DNS info to the host
+				view
+			</value>
+		</property>
+
+		<property name="showHostInterceptors">
+			<list>
+				<ref bean="dnsHostViewInterceptor" />
+			</list>
+		</property>
+		<property name="hostInfoController" ref="hostInfoController" />
+	</bean>
+
+	<bean id="dnsZoneFormController"
+		class="edu.bath.soak.web.dns.DNSZoneFormController"
+		parent="baseSimpleForm">
+		<description>Form controller for editing DNS Zones</description>
+
+		<property name="validator">
+			<bean class="edu.bath.soak.web.dns.DNSZoneValidator"></bean>
+		</property>
+		<property name="commandName" value="zone" />
+		<property name="formView" value="dns/editZone" />
+		<property name="dnsDao" ref="dnsDAO" />
+		<property name="successView"
+			value="redirect:/dns/list.do?flash=zone-updated" />
+	</bean>
+	<bean id="deleteDnsZoneFormController"
+		class="edu.bath.soak.web.dns.DeleteDNSZoneFormController"
+		parent="baseSimpleForm">
+		<description>
+			Form controller for deleting DNS Zones
+		</description>
+
+		<property name="commandName" value="zone" />
+		<property name="formView" value="dns/deleteZone" />
+		<property name="dnsDao" ref="dnsDAO" />
+		<property name="successView"
+			value="redirect:/dns/list.do?flash=zone-deleted" />
+	</bean>
+	<bean id="dnsViewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<description>The DNS view resolver.</description>
+		<property name="viewNames">
+			<list>
+				<value>dns/*</value>
+			</list>
+		</property>
+		<property name="prefix" value="/WEB-INF/view/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<bean id="dnsBeanViewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<description>The DNS view resolver.</description>
+		<property name="viewNames">
+			<list>
+				<value>beanview/dns/*</value>
+			</list>
+		</property>
+		<property name="prefix" value="/WEB-INF/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+	<bean name="dnsHandlerMap"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping"
+		parent="baseHandlerMapping">
+
+		<property name="urlMap">
+			<map>
+				<entry key="/dns/list.do" value-ref="dnsController" />
+				<entry key="/admin/dns/editZone.do"
+					value-ref="dnsZoneFormController" />
+				<entry key="/admin/dns/deleteZone.do"
+					value-ref="deleteDnsZoneFormController" />
+				<entry key="/dns/show.do" value-ref="dnsController" />
+				<entry key="/admin/dns/updateZones.do"
+					value-ref="dnsController" />
+			</map>
+		</property>
+	</bean>
+
+	<bean
+		class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
+
+</beans>

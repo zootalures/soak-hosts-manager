@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+http://www.springframework.org/schema/aop  http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+	<description>
+		Core application functionality, includes all middle tier
+		controllers and data access beans (excluding the storage
+		configuration itself)
+	</description>
+	<aop:aspectj-autoproxy />
+	<tx:annotation-driven transaction-manager="transactionManager"
+		proxy-target-class="true" />
+
+
+	<bean lazy-init="false"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<description>Property configurer</description>
+		<property name="location">
+			<value>classpath:soak.properties</value>
+		</property>
+		<property name="placeholderPrefix" value="${" />
+	</bean>
+
+	<bean id="pluginManager" class="edu.bath.soak.PluginManager"></bean>
+
+
+	<bean id="messageSource"
+		class="org.springframework.context.support.ResourceBundleMessageSource">
+		<description>Message source bean,</description>
+		<property name="basename">
+			<value>messages</value>
+		</property>
+	</bean>
+
+
+	<bean id="commandDispatcherRegistry"
+		class="edu.bath.soak.cmd.CommandDispatcherRegistryImpl">
+		<description>
+			Central dispatcher/expander for all commands, by default
+			this is loaded with command handlers for the default host
+			commands.
+
+			Plugins should inject this bean in thoe their plugin
+			registration bean and register the appropriate handlers and
+			expanders.
+		</description>
+
+	</bean>
+
+	<bean id="undoManager" class="edu.bath.soak.undo.UndoManagerImpl">
+
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="commandDispatcherRegistry"
+			ref="commandDispatcherRegistry" />
+		<property name="securityHelper" ref="securityHelper" />
+		<property name="xmlManager" ref="xmlManager" />
+	</bean>
+
+	<bean id="allocatedAddressPool"
+		class="edu.bath.soak.net.AllocatedAddressPool" scope="request">
+		<aop:scoped-proxy />
+	</bean>
+	<bean id="addressSpaceManager"
+		class="edu.bath.soak.net.AdviceBasedAddressSpaceManager">
+		<property name="hostsDAO" ref="hostsDAO" />
+		<property name="allocatedAddressPool"
+			ref="allocatedAddressPool" />
+		<property name="advisors">
+			<set>
+
+			</set>
+		</property>
+
+	</bean>
+
+	<bean name="securityHelper"
+		class="edu.bath.soak.security.AcegiSecurityHelperImpl">
+	</bean>
+
+
+
+
+	<!-- Hibernate SessionFactory -->
+	<bean id="soakspringSessionFactory"
+		name="soakspringSessionFactory;sessionFactory" lazy-init="true"
+		class="edu.bath.soak.SoakAnnotationSessionFactoryBean">
+		<property name="dataSource">
+			<ref bean="hostsDBDatasource" />
+		</property>
+		<property name="hibernateProperties">
+			<ref bean="soakspringHibernateProperties" />
+		</property>
+		<property name="annotatedPackages">
+			<list>
+				<value>edu.bath.soak</value>
+			</list>
+		</property>
+		<property name="pluginsString" value="${soak.plugins}" />
+	</bean>
+
+	<bean id="xmlManager"
+		class="edu.bath.soak.xml.JAXBXmlManagerImpl">
+		<property name="searchContexts">
+			<list>
+				<value>edu.bath.soak</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="hostsDAO" class="edu.bath.soak.net.model.NetDAO">
+		<description>The Root DAO object for host changes</description>
+		<property name="sessionFactory">
+			<ref bean="soakspringSessionFactory" />
+		</property>
+		<property name="securityHelper" ref="securityHelper" />
+		<property name="xmlManager" ref="xmlManager" />
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory">
+			<ref bean="soakspringSessionFactory" />
+		</property>
+	</bean>
+
+
+	<bean id="ipAddressEditor"
+		class="edu.bath.soak.propertyeditors.Inet4AddressEditor">
+	</bean>
+	<bean id="customEditorConfigurer"
+		class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+		<property name="customEditors">
+			<map>
+				<entry key="java.net.Inet4Address">
+					<ref bean="ipAddressEditor" />
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="customEditorRegistrar" depends-on="props"
+		class="edu.bath.soak.propertyeditors.SoakPropertyEditorRegistrar">
+		<description>
+			Pluggable property editor registrar By default this holds
+			property editors for the standard soak types, these can be
+			extended
+		</description>
+
+		<property name="hostsDAO" ref="hostsDAO" />
+	</bean>
+
+	<bean id="dataSourceRegistry"
+		class="edu.bath.soak.DataSourceRegistry">
+	</bean>
+
+	<bean
+		class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
+
+
+</beans>

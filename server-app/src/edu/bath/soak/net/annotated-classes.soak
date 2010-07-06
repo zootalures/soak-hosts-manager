@@ -1,0 +1,14 @@
+edu.bath.soak.model.OrgUnit
+edu.bath.soak.model.OrgUnitPrincipalMapping
+edu.bath.soak.net.model.Subnet
+edu.bath.soak.net.model.StoredCommand
+edu.bath.soak.net.model.Vlan
+edu.bath.soak.net.model.NetworkClass
+edu.bath.soak.net.model.HostClass
+edu.bath.soak.net.model.Host
+edu.bath.soak.net.model.ExtendedHostInfo
+edu.bath.soak.net.model.HostFlag
+edu.bath.soak.net.model.NameDomain
+edu.bath.soak.net.model.HostAlias
+edu.bath.soak.net.model.HostChange
+edu.bath.soak.net.model.LastUsageInfo

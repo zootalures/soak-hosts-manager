@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+
+	<bean id="props" lazy-init="false"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<description>Property configurer</description>
+		<property name="location">
+			<value>classpath:soak.properties</value>
+		</property>
+		<property name="placeholderPrefix" value="${" />
+		<property name="ignoreUnresolvablePlaceholders" value="false" />
+	</bean>
+
+
+
+
+	<!-- Database Property -->
+	<bean id="soakspringHibernateProperties"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean"
+		lazy-init="true">
+
+		<property name="location" value="classpath:soak.properties" />
+
+		<property name="properties">
+			<props>
+				<!--				<prop key="hibernate.show_sql">false</prop>-->
+				<!--				<prop key="hibernate.format_sql">true</prop>-->
+				<prop key="hibernate.c3p0.minPoolSize">5</prop>
+				<prop key="hibernate.c3p0.maxPoolSize">20</prop>
+				<prop key="hibernate.c3p0.timeout">600</prop>
+				<prop key="hibernate.c3p0.max_statement">50</prop>
+				<prop key="hibernate.c3p0.testConnectionOnCheckout">
+					false
+				</prop>
+				<prop key="hibernate.cache.provider_class">org.hibernate.cache.EhCacheProvider
+				</prop>
+				<prop key="hibernate.show_sql">false</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				<prop key="hibernate.use_sql_comments">true</prop>
+				<prop key="hibernate.cache.use_query_cache">true</prop>
+				<prop key="hibernate.cache.use_second_level_cache">true</prop>
+				<prop key="hibernate.generate_statistics">false</prop>
+				<prop key="hibernate.cache.use_structured_entries">false</prop>
+
+			</props>
+
+		</property>
+	</bean>
+
+</beans>

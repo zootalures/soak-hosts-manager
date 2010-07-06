@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd"
+	start-state="setupCommand">
+	<persistence-context />
+
+	<input name="selectedHosts" required="true" />
+	<action-state id="setupCommand">
+		<evaluate expression="bulkHostsFlowController.setUpDeleteCommand" />
+		<transition on="success" to="previewBulkDeleteHosts" />
+	</action-state>
+	<view-state id="previewBulkDeleteHosts" view="bulk/previewBulkDeleteHosts">
+		<on-entry>
+			<evaluate expression="previewDeleteFormController.setupForm" />
+		</on-entry>
+		<on-render>
+			<evaluate expression="bulkHostsFlowController.generatePreview" />
+		</on-render>
+		<transition on="submit" to="doDeletion">
+			<evaluate expression="previewDeleteFormController.bind" />
+		</transition>
+	</view-state>
+	<action-state id="doDeletion">
+		<evaluate expression="bulkHostsFlowController.runCommand" />
+		<transition on="success" to="complete">
+			<evaluate expression="starredHostsManager.clearStarredHosts()" />
+		</transition>
+	</action-state>
+	<end-state id="complete" view="bulk/hostsDeleted" />
+	<bean-import resource="bulk-hosts.flowbeans.xml" />
+</flow>

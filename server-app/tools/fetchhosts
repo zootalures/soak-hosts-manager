@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Script for periodically updating a hosts file from the hosts manager; 
+# cspocc 28/3/2008
+
+# The fully qualified URL of the hosts file page on the server 
+#HOSTFILE_URL="http://ccpc-occ2.bath.ac.uk:8080/soak/host/hostsFile.do"
+HOSTFILE_URL="https://network.bath.ac.uk/hosts/host/hostsFile.do"
+
+# Where the hosts file will eventually be copied to
+#DEST=/system/etc/hosts
+DEST=/tmp/hosts-local
+# Where a backup copy of the hosts file will be saved to 
+DESTBAK=/tmp/hosts.bak-local
+# a temporary location where the host file will be saved while it is being downloaded
+TEMP=/tmp/hosts.tmp.$$
+rm -f ${TEMP}
+
+#echo wget --no-check-certificate -qO ${TEMP} ${HOSTFILE_URL}
+if  wget --no-check-certificate -qO ${TEMP} ${HOSTFILE_URL}  ; then 
+	cp ${DEST} ${DESTBAK}
+	mv ${TEMP} ${DEST}
+else
+   echo fetching hosts file failed
+fi
+rm -f ${TEMP}

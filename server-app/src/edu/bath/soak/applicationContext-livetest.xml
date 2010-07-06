@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<description>Property configurer</description>
+		<property name="location">
+			<value>classpath:soak.properties</value>
+		</property>
+	</bean>
+	<!--	<bean id="validationCacheInterceptor"-->
+	<!--		class="edu.bath.soak.cache.ValidationCacheInterceptor">-->
+	<!--		<description>-->
+	<!--			AOP-based iterceptor which caches Validation results in the-->
+	<!--			request scope,-->
+	<!--		</description>-->
+	<!--		<property name="validationCache" ref="validationCache" />-->
+	<!--	</bean>-->
+	<!--	<bean id="validationCache"-->
+	<!--		class="edu.bath.soak.cache.ScopedValidationCache" scope="request">-->
+	<!--		<aop:scoped-proxy />-->
+	<!--	</bean>-->
+	<!--	-->
+
+	<bean id="hostsDBDatasource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource"
+		lazy-init="true">
+		<property name="driverClassName">
+			<value>${soak.db.driverClass}</value>
+			<!--			<value>com.mysql.jdbc.Driver</value>-->
+		</property>
+		<property name="url">
+			<value>${soak.db.url}</value>
+			<!--			<value>jdbc:mysql://localhost/soakmaster</value>-->
+		</property>
+		<property name="username">
+			<value>${soak.db.userName}</value>
+		</property>
+		<property name="password">
+			<value>${soak.db.password}</value>
+		</property>
+	</bean>
+	<!--	<import resource="live-data-import.xml" />-->
+	<!--	<import resource="livetest-data.xml" />-->
+
+</beans>
